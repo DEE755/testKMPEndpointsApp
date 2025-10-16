@@ -27,4 +27,14 @@ class NetworkRepositoryImpl : NetworkRepository {
         }
         return response.bodyAsText()
     }
+
+    override suspend fun verifyCode(to: String, code: String): String {
+        val request = CodeVerificationRequest(to, code)
+        println("Code verification request: $request")
+        val response: HttpResponse = client.post("http://127.0.0.1:7001/auth/verify-signup-otp") {
+            contentType(ContentType.Application.Json)
+            setBody(request)
+        }
+        return response.bodyAsText()
+    }
 }

@@ -21,7 +21,7 @@ class NetworkRepositoryImpl : NetworkRepository {
     override suspend fun sendMobilePhone(phone: String): String {
         val request = MobilePhoneRequest(phone)
         println("Request sent: $request")
-        val response: HttpResponse = client.post("http://127.0.0.1:7001/auth/send-signup-sms") {
+        val response: HttpResponse = client.post("http://10.0.2.2:7001/auth/send-signup-sms") {
             contentType(ContentType.Application.Json)
             setBody(request)
         }

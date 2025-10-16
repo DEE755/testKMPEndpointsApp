@@ -10,11 +10,12 @@ import kotlinx.coroutines.launch
 @Composable
 fun PostButtonScreen(repository: NetworkRepository) {
     var phone by remember { mutableStateOf("") }
+    var code by remember { mutableStateOf("") }
     var result by remember { mutableStateOf("") }
     var loading by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
-    Column(modifier = Modifier.padding(16.dp)) {
+    Column(modifier = Modifier.padding(50.dp)) {
         OutlinedTextField(
             value = phone,
             onValueChange = { phone = it },
@@ -30,7 +31,7 @@ fun PostButtonScreen(repository: NetworkRepository) {
                     try {
                         result = repository.sendMobilePhone(phone)
                     } catch (e: Exception) {
-                        result = "Erreur: ${e.message}"
+                        result = "Error: ${e.message}"
                     } finally {
                         loading = false
                     }
@@ -42,7 +43,38 @@ fun PostButtonScreen(repository: NetworkRepository) {
             if (loading) {
                 CircularProgressIndicator(modifier = Modifier.size(24.dp))
             } else {
-                Text("Envoyer")
+                Text("Send")
+            }
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+        OutlinedTextField(
+            value = code,
+            onValueChange = { code = it },
+            label = { Text("Verification OTP") },
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(
+            onClick = {
+                loading = true
+                result = ""
+                scope.launch {
+                    try {
+                        result = repository.verifyCode(phone, code)
+                    } catch (e: Exception) {
+                        result = "Error: ${e.message}"
+                    } finally {
+                        loading = false
+                    }
+                }
+            },
+            enabled = !loading && phone.isNotBlank() && code.isNotBlank(),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            if (loading) {
+                CircularProgressIndicator(modifier = Modifier.size(24.dp))
+            } else {
+                Text("Verify code")
             }
         }
         Spacer(modifier = Modifier.height(16.dp))

@@ -60,6 +60,7 @@ kotlin {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
             implementation("io.ktor:ktor-client-okhttp:2.3.7")
+            implementation("io.ktor:ktor-client-logging:2.3.7")
         }
         jvmMain.dependencies {
             implementation(compose.desktop.currentOs)
@@ -74,8 +75,8 @@ kotlin {
         jsMain.dependencies {
             implementation("io.ktor:ktor-client-js:2.3.7")
         }
-        wasmJsMain.dependencies {
-        }
+        //wasmJsMain.dependencies {
+        //}
         commonTest.dependencies {
             implementation(libs.kotlin.test)
         }
