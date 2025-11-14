@@ -20,16 +20,21 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.demokmpinterfacetestingapp.com.example.demokmpinterfacetestingapp.components.PickedImage
 import com.example.demokmpinterfacetestingapp.com.example.demokmpinterfacetestingapp.components.UploadImageButton
+import com.example.demokmpinterfacetestingapp.util.PickedImage
 import di.ServiceLocator.authRepository
 import di.ServiceLocator.userRepository
+import di.ServiceLocator.cloudFilesRepository
+
 import com.example.demokmpinterfacetestingapp.util.decodeImage
+
+
 
 @Composable
 fun AppSelectionScreen(viewModel: LogInOutViewModel?, navRouter: Router?) {
-    val viewModel = viewModel ?: LogInOutViewModel(authRepository, userRepository)
+    val viewModel = viewModel ?: LogInOutViewModel(authRepository, userRepository, cloudFilesRepository)
     val navRouter = navRouter ?: Router(Screen.AppSelectionScreen)
+
     val uiState by viewModel.uiState.collectAsState()
     Column(modifier = Modifier.padding(30.dp)) {
         Text("Hello ${uiState.currentUser?.username ?: ""}!")
@@ -45,15 +50,35 @@ fun AppSelectionScreen(viewModel: LogInOutViewModel?, navRouter: Router?) {
     }
     var selected by remember { mutableStateOf<PickedImage?>(null) }
 
-    Column(Modifier.padding(16.dp)) {
-        UploadImageButton { img -> selected = img }
-        Spacer(Modifier.height(12.dp))
-        if (selected != null) {
-            val bmp = remember(selected) { decodeImage(selected!!.bytes) }
-            Image(bitmap = bmp, contentDescription = "Selected image", modifier = Modifier.size(120.dp))
-            Text("Nom: ${selected!!.name ?: "-"}")
-            Text("MIME: ${selected!!.mimeType ?: "-"}")
-            Text("Taille: ${selected!!.bytes.size} octets")
+    Row {
+        Column(Modifier.padding(16.dp)) {
+            UploadImageButton { img -> selected = img }
+
+
+            Spacer(Modifier.height(12.dp))
+            if (selected != null) {
+                val bmp = remember(selected) { decodeImage(selected!!.bytes) }
+                Image(bitmap = bmp, contentDescription = "Selected image", modifier = Modifier.size(120.dp))
+                Text("Nom: ${selected!!.name ?: "-"}")
+                Text("MIME: ${selected!!.mimeType ?: "-"}")
+                Text("Taille: ${selected!!.bytes.size} octets")
+            }
         }
+
+        Button(
+            onClick = {
+                selected?.let { image ->
+                    viewModel.uploadAppImage(
+                        image = image,
+                        folder = "app-images",
+                        fileBasename = "app-logo"
+                    )
+                }
+            },
+            enabled = selected != null
+        ) {
+            Text("Upload to server")
+        }
+
     }
 }

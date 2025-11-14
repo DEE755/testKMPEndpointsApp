@@ -17,12 +17,12 @@ import com.example.demokmpinterfacetestingapp.Screens.AppSelectionScreen
 import com.example.demokmpinterfacetestingapp.Screens.PromptFromUserSeriesScreen
 import di.ServiceLocator.authRepository
 import di.ServiceLocator.userRepository
-
+import di.ServiceLocator.cloudFilesRepository
 
 @Composable
 fun AppRoot() {
     val navRouter = remember { Router() }
-    val viewModel = remember{LogInOutViewModel(authRepository, userRepository)}
+    val viewModel = remember{LogInOutViewModel(authRepository, userRepository, cloudFilesRepository)}
     val uiState by viewModel.uiState.collectAsState()
 
     NavHost(

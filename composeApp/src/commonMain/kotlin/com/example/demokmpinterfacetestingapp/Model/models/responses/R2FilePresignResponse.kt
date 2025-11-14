@@ -1,4 +1,4 @@
-package com.example.demokmpinterfacetestingapp.com.example.demokmpinterfacetestingapp.Model.models.responses
+package com.example.demokmpinterfacetestingapp.Model.models.responses
 
 import kotlinx.serialization.Serializable
 
@@ -13,6 +13,11 @@ data class R2PrivateUrlRequest(
 data class R2FilePresignResponse(
     val key: String,           // final object key chosen by backend
     val url: String,           // presigned POST endpoint
-    val fields: Map<String, String>, // form fields to include in POST
     val expires_in: Int
+)
+
+@Serializable
+data class CommitResponse(
+    val ok: Boolean,
+    val key: String
 )

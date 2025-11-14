@@ -2,6 +2,7 @@
 package di
 
 import com.example.demokmpinterfacetestingapp.Repository.AuthRepository
+import com.example.demokmpinterfacetestingapp.Repository.CloudFilesRepository
 import com.example.demokmpinterfacetestingapp.Repository.UserRepository
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.*
@@ -19,6 +20,9 @@ expect fun provideEngine(): HttpClientEngineFactory<*>
 expect fun provideAuthRepository(client: HttpClient): AuthRepository
 
 expect fun provideUserRepository(client: HttpClient): UserRepository
+
+
+expect fun provideCloudFilesRepository(client : HttpClient): CloudFilesRepository
 
 expect fun provideLogger(): Logger
 
@@ -52,4 +56,7 @@ object ServiceLocator {
     val userRepository: UserRepository by lazy {
         provideUserRepository(client)
     }
+
+    val cloudFilesRepository by lazy {
+        provideCloudFilesRepository(client) }
 }

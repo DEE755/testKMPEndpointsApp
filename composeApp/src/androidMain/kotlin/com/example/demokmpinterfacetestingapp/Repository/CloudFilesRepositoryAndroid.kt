@@ -1,34 +1,46 @@
 package com.example.demokmpinterfacetestingapp.Repository
 
-import com.example.demokmpinterfacetestingapp.com.example.demokmpinterfacetestingapp.Model.models.requests.OwnerType
-import com.example.demokmpinterfacetestingapp.com.example.demokmpinterfacetestingapp.Model.models.requests.R2FileCommitRequest
-import com.example.demokmpinterfacetestingapp.com.example.demokmpinterfacetestingapp.Model.models.requests.R2FilePresignRequest
-import com.example.demokmpinterfacetestingapp.com.example.demokmpinterfacetestingapp.Model.models.requests.Visibility
-import com.example.demokmpinterfacetestingapp.com.example.demokmpinterfacetestingapp.Model.models.responses.R2FilePresignResponse
-import com.example.demokmpinterfacetestingapp.com.example.demokmpinterfacetestingapp.Repository.CloudFilesRepository
+import android.graphics.BitmapFactory
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
+import com.example.demokmpinterfacetestingapp.Const.CustomApiParams
+import com.example.demokmpinterfacetestingapp.Model.models.requests.OwnerType
+import com.example.demokmpinterfacetestingapp.Model.models.requests.R2FileCommitRequest
+import com.example.demokmpinterfacetestingapp.Model.models.requests.R2FilePresignRequest
+import com.example.demokmpinterfacetestingapp.Model.models.requests.Visibility
+import com.example.demokmpinterfacetestingapp.Model.models.responses.R2FilePresignResponse
+
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.request.forms.formData
+import io.ktor.client.request.forms.submitFormWithBinaryData
+import io.ktor.client.request.get
+import io.ktor.client.request.header
 import io.ktor.client.request.post
+import io.ktor.client.request.put
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
+import io.ktor.http.Headers
+import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 
 
 class CloudFilesRepositoryAndroid(val client: HttpClient) : CloudFilesRepository {
-    val fileBaseUrl = "/files/"
 
+
+    val fileBaseUrl = CustomApiParams.getBaseUrl() + "/files"
 
     override suspend fun presignAppFileUpload(
-        folder_path: String,
+        folder: String,
         file_basename: String?,
         mime: String,
         ext: String,
         visibility: Visibility
     ): R2FilePresignResponse {
-        val request = R2FilePresignRequest(OwnerType.APP, null, folder_path, file_basename, mime, ext, Visibility.PUBLIC)
+        val request = R2FilePresignRequest(OwnerType.APP, null, folder, file_basename, mime, ext, Visibility.PUBLIC)
         val response: HttpResponse = client.post("$fileBaseUrl/presign") {
             contentType(ContentType.Application.Json)
             setBody(request)
@@ -42,15 +54,15 @@ class CloudFilesRepositoryAndroid(val client: HttpClient) : CloudFilesRepository
     }
 
     override suspend fun presignUserFileUpload(
-        user_id: String,
-        folder_path: String,
+        owner_id: String,
+        folder: String,
         file_basename: String?,
         mime: String,
         ext: String,
         visibility: Visibility
     ): R2FilePresignResponse {
         val request =
-            R2FilePresignRequest(OwnerType.USER, user_id, folder_path, file_basename, mime, ext, Visibility.PRIVATE)
+            R2FilePresignRequest(OwnerType.USER, owner_id, folder, file_basename, mime, ext, Visibility.PRIVATE)
         val response: HttpResponse = client.post("$fileBaseUrl/presign") {
             contentType(ContentType.Application.Json)
             setBody(request)
@@ -64,8 +76,15 @@ class CloudFilesRepositoryAndroid(val client: HttpClient) : CloudFilesRepository
     }
 
 
-    override suspend fun fetchFile(URI: String) {
-        TODO("Not yet implemented")
+    override suspend fun fetchFile(URI: String): ImageBitmap {
+        val response: HttpResponse = client.get(URI)
+        if (!response.status.isSuccess()) {
+            throw Exception("Failed to fetch file: ${response.status} - ${response.bodyAsText()}")
+        }
+        val bytes: ByteArray = response.body()
+        val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+            ?: throw Exception("Failed to decode image bytes")
+        return bitmap.asImageBitmap()
     }
 
 
@@ -86,8 +105,8 @@ class CloudFilesRepositoryAndroid(val client: HttpClient) : CloudFilesRepository
     }
 
 
-    override suspend fun commitUserFile(user_id: String, key: String, tags: List<String>, checksum: String?) {
-        val request = R2FileCommitRequest(OwnerType.USER, user_id, key, Visibility.PRIVATE, tags)
+    override suspend fun commitUserFile(owner_id: String, key: String, tags: List<String>, checksum: String?) {
+        val request = R2FileCommitRequest(OwnerType.USER, owner_id, key, Visibility.PRIVATE, tags)
 
         val response: HttpResponse = client.post("$fileBaseUrl/commit") {
             contentType(ContentType.Application.Json)
@@ -99,6 +118,24 @@ class CloudFilesRepositoryAndroid(val client: HttpClient) : CloudFilesRepository
         }
 
 
+    }
+
+   override suspend fun uploadToR2(
+        presignedUrl: String,
+        fileBytes: ByteArray,
+        contentType: String
+    ): Boolean {
+        return try {
+            val response = client.put(presignedUrl) {
+                setBody(fileBytes)
+                header(HttpHeaders.ContentType, contentType)
+                header(HttpHeaders.ContentLength, fileBytes.size.toString())
+            }
+            response.status.isSuccess()
+        } catch (e: Exception) {
+            println("R2 upload error: ${e.message}")
+            false
+        }
     }
 
 }

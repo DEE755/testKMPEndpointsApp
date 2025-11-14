@@ -20,7 +20,7 @@ import kotlinx.serialization.json.Json
 
 class AndroidAuthRepositoryAndroid(val client: HttpClient) : AuthRepository {
 
-    val authBaseUrl: String = CustomApiParams.Companion.getBaseUrl() + "/auth"
+    val authBaseUrl: String = CustomApiParams.getBaseUrl() + "/auth"
 
 
     override suspend fun sendMobilePhone(phone: String): String {

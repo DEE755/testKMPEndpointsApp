@@ -11,7 +11,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import di.ServiceLocator
 
 val logInOutVM: LogInOutViewModel by lazy {
-    LogInOutViewModel(ServiceLocator.authRepository, ServiceLocator.userRepository)
+    LogInOutViewModel(ServiceLocator.authRepository, ServiceLocator.userRepository, ServiceLocator.cloudFilesRepository)
 }
 
 class MainActivity : ComponentActivity() {

@@ -1,4 +1,4 @@
-package com.example.demokmpinterfacetestingapp.com.example.demokmpinterfacetestingapp.Model.models.requests
+package com.example.demokmpinterfacetestingapp.Model.models.requests
 
 import kotlinx.serialization.Serializable
 
@@ -14,7 +14,7 @@ enum class Visibility { PUBLIC, PRIVATE }
 data class R2FilePresignRequest(
     val owner_type: OwnerType,       // USER or APP
     val owner_id: String? = null,    // user id when USER; null for APP
-    val folder_path: String,         // e.g. "assets/branding" or "users/avatars"
+    val folder: String,         // e.g. "assets/branding" or "users/avatars"
     val file_basename: String? = null, // optional fixed name, else backend generates
     val mime: String,                // e.g. "image/webp", "application/pdf"
     val ext: String,                 // e.g. "webp", "pdf"

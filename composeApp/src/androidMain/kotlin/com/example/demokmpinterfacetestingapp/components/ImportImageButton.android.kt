@@ -7,6 +7,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import com.example.demokmpinterfacetestingapp.util.PickedImage
 
 @Composable
 actual fun rememberImagePicker(onPicked: (PickedImage?) -> Unit): () -> Unit {
