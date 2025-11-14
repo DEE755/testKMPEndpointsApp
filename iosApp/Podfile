@@ -1,0 +1,10 @@
+source 'https://cdn.cocoapods.org'
+platform :ios, '14.0'
+use_frameworks!
+
+target 'iosApp' do
+  # Pod GoogleSignIn pour iOS
+  pod 'GoogleSignIn', '~> 6.0'
+  # Inclure le module KMP généré localement (le plugin KMP génère un podspec dans `composeApp`)
+  pod 'composeApp', :path => '../composeApp'
+end

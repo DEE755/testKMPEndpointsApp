@@ -1,14 +1,16 @@
 package com.example.demokmpinterfacetestingapp
 
+import com.example.demokmpinterfacetestingapp.Repository.AuthRepository
 import androidx.compose.runtime.*
 import androidx.compose.material3.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.demokmpinterfacetestingapp.components.GoogleSignInButton
 import kotlinx.coroutines.launch
 
 @Composable
-fun PostButtonScreen(repository: NetworkRepository) {
+fun PostButtonScreen(repository: AuthRepository) {
     var phone by remember { mutableStateOf("") }
     var code by remember { mutableStateOf("") }
     var result by remember { mutableStateOf("") }
@@ -81,5 +83,19 @@ fun PostButtonScreen(repository: NetworkRepository) {
         if (result.isNotBlank()) {
             Text(result)
         }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+
+         GoogleSignInButton(
+            serverClientId = "781042180538-ua2j6sktaok93chedst9tib6j9teg4ok.apps.googleusercontent.com",
+            backendUrl = "http://10.0.2.2:7001/google/verify",
+            onResult = { success, message ->
+                result = message ?: ""
+            }
+        )
     }
 }
+
+
+

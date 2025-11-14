@@ -1,84 +1,95 @@
-import org.gradle.kotlin.dsl.implementation
+// composeApp/build.gradle.kts
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
+@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
-    alias(libs.plugins.kotlinMultiplatform)
+    id("org.jetbrains.kotlin.multiplatform")
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
-    alias(libs.plugins.composeHotReload)
-    id("org.jetbrains.kotlin.plugin.serialization") version "1.9.10"
+    alias(libs.plugins.kotlinSerialization)
 }
 
 kotlin {
-    androidTarget {
-        compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_11)
-        }
-    }
-
-    listOf(
-        iosArm64(),
-        iosSimulatorArm64()
-    ).forEach { iosTarget ->
-        iosTarget.binaries.framework {
-            baseName = "ComposeApp"
-            isStatic = true
-            freeCompilerArgs += listOf("-Xbinary=bundleId=com.example.composeApp")
-        }
-    }
-
+    // Targets
+    androidTarget()
+    jvmToolchain(17)
     jvm()
+    val iosArm64 = iosArm64()
+    val iosSimArm64 = iosSimulatorArm64()
 
-    js {
-        browser()
-        binaries.executable()
-    }
+    // CocoaPods (GoogleSignIn iOS) NOT SUPPORTED YET BY XCODE 26 AND CANT USE LESS THAN 26 SO USING WEBVIEW FOR IOS INSTEAD
+    /*cocoapods {
+        summary = "GSignIn"
+        homepage = "https://example.com"
+        version = "1.0.0"
+        ios.deploymentTarget = "14.0"
 
-//    @OptIn(ExperimentalWasmDsl::class)
-  //  wasmJs {
-    //    browser()
-      //  binaries.executable()
-    //}
+        // pointer vers le Podfile de votre app iOS (ajustez le chemin si nécessaire)
+        podfile = project.file("../iosApp/Podfile")
 
+        // déclarer la dépendance CocoaPod iOS
+        pod("GoogleSignIn", "~> 6.0")
+
+        framework {
+            baseName = "composeApp"
+        }
+    }*/
+
+    // Source sets
     sourceSets {
-        commonMain.dependencies {
-            implementation(compose.runtime)
-            implementation(compose.foundation)
-            implementation(compose.material3)
-            implementation(compose.ui)
-            implementation(compose.components.resources)
-            implementation(compose.components.uiToolingPreview)
-            implementation("io.ktor:ktor-client-core:2.3.7")
-            implementation("io.ktor:ktor-client-content-negotiation:2.3.7")
-            implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.7")
-            implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+        val commonMain by getting {
+            dependencies {
+                implementation(compose.runtime)
+                implementation(compose.foundation)
+                implementation(compose.material3)
+                implementation(compose.ui)
+                implementation(compose.components.resources)
+                implementation(compose.components.uiToolingPreview)
+
+                implementation("io.ktor:ktor-client-core:2.3.12")
+                implementation("io.ktor:ktor-client-content-negotiation:2.3.12")
+                implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.12")
+                implementation("io.ktor:ktor-client-logging:2.3.12")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+                implementation("org.jetbrains.skiko:skiko:0.7.93")
+
+            }
         }
-        androidMain.dependencies {
-            implementation(compose.preview)
-            implementation(libs.androidx.activity.compose)
-            implementation("io.ktor:ktor-client-okhttp:2.3.7")
-            implementation("io.ktor:ktor-client-logging:2.3.7")
+        val androidMain by getting {
+            dependencies {
+                implementation(compose.preview)
+                implementation(libs.androidx.activity.compose)
+
+                implementation("io.ktor:ktor-client-okhttp:2.3.12")
+                implementation("io.ktor:ktor-client-logging:2.3.12")
+
+                implementation("com.google.android.gms:play-services-auth:21.2.0")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
+                implementation("androidx.activity:activity-ktx:1.9.2")
+                implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.6")
+            }
         }
-        jvmMain.dependencies {
-            implementation(compose.desktop.currentOs)
-            implementation(libs.kotlinx.coroutinesSwing)
-            implementation("io.ktor:ktor-client-cio:2.3.7")
-            implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+        val jvmMain by getting {
+            dependencies {
+                implementation(compose.desktop.currentOs)
+                implementation(libs.kotlinx.coroutinesSwing)
+
+                implementation("io.ktor:ktor-client-cio:2.3.12")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+            }
         }
-        iosMain.dependencies {
-            implementation("io.ktor:ktor-client-darwin:2.3.7")
-            implementation("io.ktor:ktor-client-logging:2.3.7")
+        val iosMain by creating {
+            dependsOn(commonMain)
+            dependencies {
+                implementation("io.ktor:ktor-client-darwin:2.3.12")
+                implementation("io.ktor:ktor-client-logging:2.3.12")
+            }
         }
-        jsMain.dependencies {
-            implementation("io.ktor:ktor-client-js:2.3.7")
-        }
-        //wasmJsMain.dependencies {
-        //}
-        commonTest.dependencies {
-            implementation(libs.kotlin.test)
+        val iosArm64Main by getting { dependsOn(iosMain) }
+        val iosSimulatorArm64Main by getting { dependsOn(iosMain) }
+        val commonTest by getting {
+            dependencies { implementation(libs.kotlin.test) }
         }
     }
 }
@@ -94,33 +105,28 @@ android {
         versionCode = 1
         versionName = "1.0"
     }
-    packaging {
-        resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
-        }
-    }
-    buildTypes {
-        getByName("release") {
-            isMinifyEnabled = false
-        }
-    }
+
+    buildFeatures { compose = true }
+
+    packaging { resources { excludes += "/META-INF/{AL2.0,LGPL2.1}" } }
+    buildTypes { getByName("release") { isMinifyEnabled = false } }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 }
 
 dependencies {
     debugImplementation(compose.uiTooling)
+    // Note: Play Services Auth est déjà déclaré dans androidMain
 }
 
 compose.desktop {
     application {
-        mainClass = "com.example.demokmpinterfacettestingapp.MainKt"
-
+        mainClass = "com.example.demokmpinterfacetestingapp.MainKt"
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "com.example.demokmpinterfacettestingapp"
+            packageName = "com.example.demokmpinterfacetestingapp"
             packageVersion = "1.0.0"
         }
     }
