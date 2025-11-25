@@ -16,14 +16,15 @@ import androidx.compose.ui.unit.sp
 import com.example.demokmpinterfacetestingapp.ViewModel.LogInOutViewModel
 import di.ServiceLocator.authRepository
 import di.ServiceLocator.userRepository
+import di.ServiceLocator.logInOutViewModel
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 @Preview
 
-fun ConnectedTempScreen(viewModel: LogInOutViewModel? =null, navRouter: Router? = null) {
+fun ConnectedTempScreen(viewModel: LogInOutViewModel =logInOutViewModel, navRouter: Router? = null) {
     val navRouter = navRouter ?: Router()
-    val viewModel = viewModel ?: remember{ LogInOutViewModel(authRepository, userRepository) }
+    //val viewModel = viewModel ?: remember{ LogInOutViewModel(authRepository, userRepository) }
 
     Column(
         modifier = Modifier.padding(16.dp),

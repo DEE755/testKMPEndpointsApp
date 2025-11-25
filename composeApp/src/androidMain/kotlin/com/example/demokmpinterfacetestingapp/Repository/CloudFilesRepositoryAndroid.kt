@@ -138,4 +138,10 @@ class CloudFilesRepositoryAndroid(val client: HttpClient) : CloudFilesRepository
         }
     }
 
+    override suspend fun getFilesListFromCloudDB(folder: String): List<String> {
+       client.post("$fileBaseUrl/files") {}
+
+        return emptyList()
+    }
+
 }

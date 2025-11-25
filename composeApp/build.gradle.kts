@@ -54,6 +54,8 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
                 implementation("org.jetbrains.skiko:skiko:0.7.93")
 
+                implementation("media.kamel:kamel-image:0.9.5")
+
             }
         }
         val androidMain by getting {

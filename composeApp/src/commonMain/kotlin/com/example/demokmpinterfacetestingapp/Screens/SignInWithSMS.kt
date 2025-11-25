@@ -16,12 +16,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import di.ServiceLocator.authRepository
 import di.ServiceLocator.userRepository
+import di.ServiceLocator.logInOutViewModel
 
 
 @Composable
-fun SignInWithSMSScreen(viewModel: LogInOutViewModel, navRouter: Router? = null) {
+fun SignInWithSMSScreen(viewModel: LogInOutViewModel = logInOutViewModel, navRouter: Router? = null) {
     val uiState by viewModel.uiState.collectAsState()
-    val viewModel = viewModel ?: remember{LogInOutViewModel(authRepository, userRepository)}
+    //val viewModel = viewModel ?: remember{LogInOutViewModel(authRepository, userRepository)}
 
     Column {
         Spacer(modifier = Modifier.height(30.dp))

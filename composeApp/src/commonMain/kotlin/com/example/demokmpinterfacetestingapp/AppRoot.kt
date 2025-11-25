@@ -18,11 +18,15 @@ import com.example.demokmpinterfacetestingapp.Screens.PromptFromUserSeriesScreen
 import di.ServiceLocator.authRepository
 import di.ServiceLocator.userRepository
 import di.ServiceLocator.cloudFilesRepository
-
+import di.ServiceLocator.tokenProvider
 @Composable
 fun AppRoot() {
     val navRouter = remember { Router() }
-    val viewModel = remember{LogInOutViewModel(authRepository, userRepository, cloudFilesRepository)}
+   //initilize first time objects:
+    val viewModel = remember{LogInOutViewModel(
+        authRepository, userRepository, cloudFilesRepository,
+        tokenProvider = tokenProvider
+    )}
     val uiState by viewModel.uiState.collectAsState()
 
     NavHost(

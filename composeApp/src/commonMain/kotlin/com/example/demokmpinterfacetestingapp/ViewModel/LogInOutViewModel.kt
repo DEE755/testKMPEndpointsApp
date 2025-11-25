@@ -5,6 +5,8 @@ import com.example.demokmpinterfacetestingapp.Model.models.requests.Visibility
 import com.example.demokmpinterfacetestingapp.Repository.AuthRepository
 import com.example.demokmpinterfacetestingapp.Repository.CloudFilesRepository
 import com.example.demokmpinterfacetestingapp.Repository.UserRepository
+import com.example.demokmpinterfacetestingapp.com.example.demokmpinterfacetestingapp.AuthTokenProvider
+import com.example.demokmpinterfacetestingapp.com.example.demokmpinterfacetestingapp.ui.showToast
 import com.example.demokmpinterfacetestingapp.util.PickedImage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -18,6 +20,7 @@ class LogInOutViewModel(//injecting common interface
     val authRepository : AuthRepository,
     val userRepository: UserRepository,
     val cloudFilesRepository: CloudFilesRepository? = null,
+    private val tokenProvider: AuthTokenProvider,
     private val viewModelScope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 ) {
 
@@ -139,6 +142,16 @@ class LogInOutViewModel(//injecting common interface
     }
 
 
+    fun setUsername(username: String) {
+        val currentUser = _uiState.value.currentUser
+        currentUser?.username = username
+        _uiState.value = _uiState.value.copy(currentUser = currentUser)
+    }
+
+    fun setUser(user: User?) {
+        _uiState.value = _uiState.value.copy(currentUser = user)
+    }
+
     fun emailSignUp() {
 
         viewModelScope.launch {
@@ -199,7 +212,7 @@ class LogInOutViewModel(//injecting common interface
                 cloudFilesRepository?.presignUserFileUpload(
                     owner_id = _uiState.value.currentUser?._id ?: "",
                     folder = "users/${_uiState.value.currentUser?._id}/files/",
-                    file_baseName = fileName,
+                    file_basename = fileName,
                     mime = fileType,
                     ext = fileType.substringAfterLast("/")
                 )
@@ -208,15 +221,63 @@ class LogInOutViewModel(//injecting common interface
             }
         }
 
-            fun commitAppFile(key: String, tags: List<String> = emptyList(), checksum: String? = null) =
-                viewModelScope.launch {
-                    try {
-                        cloudFilesRepository?.commitAppFile(key, tags, checksum)
-                    } catch (e: Exception) {
-                        _connectionStatus.value = _connectionStatus.value.copy(error = e)
-                    }
+    fun commitAppFile(key: String, tags: List<String> = emptyList(), checksum: String? = null) =
+        viewModelScope.launch {
+            try {
+                cloudFilesRepository?.commitAppFile(key, tags, checksum)
+            } catch (e: Exception) {
+                _connectionStatus.value = _connectionStatus.value.copy(error = e)
+            }
+        }
+
+
+    fun uploadUserImage(image: PickedImage, folder: String, fileBasename: String) {
+        viewModelScope.launch {
+            try {
+                if (_uiState.value.currentUser == null || _uiState.value.currentUser?._id == null) {
+                    throw Exception("No current user found for user file upload")
+                }
+                // 1. Obtain presigned URL
+                val presignResponse = cloudFilesRepository?.presignUserFileUpload(
+                    owner_id = _uiState.value.currentUser!!._id, //can't be null here
+                    folder = folder,
+                    file_basename = fileBasename,
+                    mime = image.mimeType ?: "image/jpeg",
+                    ext = image.name?.substringAfterLast('.') ?: "jpg",
+                    visibility = Visibility.PUBLIC
+                )
+
+                if (presignResponse == null) {
+                    throw Exception("Failed to obtain presigned URL")
                 }
 
+                // 2. Upload direct vers S3/R2
+                val uploadSuccess = cloudFilesRepository.uploadToR2(
+                    presignedUrl = presignResponse.url,
+                    fileBytes = image.bytes,
+                    contentType = image.mimeType ?: "image/jpeg"
+                )
+
+                if (uploadSuccess) {
+                    // 3. Commit to backend
+                    cloudFilesRepository.commitUserFile(
+                        owner_id = _uiState.value.currentUser!!._id,//can't be null here
+                        key = presignResponse.key,
+                        tags = listOf("app-image"),
+                        checksum = null,
+
+                        )
+                    println("Upload successful: ${image.name} of type : ${image.mimeType}, Answer: ${presignResponse.key}")
+                    showToast("Upload successful: ${image.name}")
+                    // Success notification
+                }
+            } catch (e: Exception) {
+                // Gérer l'erreur
+                println("Upload failed: ${e.message}")
+                showToast("Upload failed: ${image.name}")
+            }
+        }
+    }
 
 
     fun uploadAppImage(image: PickedImage, folder: String, fileBasename: String) {
@@ -250,18 +311,55 @@ class LogInOutViewModel(//injecting common interface
                         checksum = null
                     )
                     println("Upload successful: ${image.name} of type : ${image.mimeType}, Answer: ${presignResponse.key}")
-
+                    showToast("Upload successful: ${image.name}")
                     // Success notification
                 }
             } catch (e: Exception) {
                 // Gérer l'erreur
                 println("Upload failed: ${e.message}")
+                showToast("Upload failed: ${image.name}")
             }
         }
     }
 
 
+    fun getFilesListFromCloudDB(folder: String) = viewModelScope.launch {
+        try {
+            cloudFilesRepository?.getFilesListFromCloudDB(folder)
+        } catch (e: Exception) {
+            _connectionStatus.value = _connectionStatus.value.copy(error = e)
+        }
+    }
 
 
+    fun saveAccessToken(token: String) {
+        viewModelScope.launch {
+            tokenProvider.saveAccessToken(token)
+        }
+    }
+
+    fun tryAndGetUserFromToken()
+    {
+        if (!tokenProvider.hasBearerSet) return
+
+        viewModelScope.launch {
+            try {
+                val fetchedUser: User? = authRepository.getCurrentUser()
+                fetchedUser?.let {
+                    setUser(it)
+                    setConnected(true)
+                }
+            }
+
+            catch (e: Exception) { println("failed to get user from token: ${e.message}") }
+        }
+    }
+
+    suspend fun logout() {
+            tokenProvider.clearAccessToken()
+            setUser(null)
+            setConnected(false)
+    }
 
 }
+

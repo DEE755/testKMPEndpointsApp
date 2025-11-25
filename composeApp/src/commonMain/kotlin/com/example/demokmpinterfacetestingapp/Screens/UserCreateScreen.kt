@@ -11,11 +11,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import di.ServiceLocator.authRepository
 import di.ServiceLocator.userRepository
-
+import di.ServiceLocator.logInOutViewModel
 
 @Composable
-fun UserCreateScreen(viewModel: LogInOutViewModel?, navRouter: Router?) {
-    val viewModel = viewModel ?: remember{LogInOutViewModel(authRepository, userRepository)}
+fun UserCreateScreen(viewModel: LogInOutViewModel=logInOutViewModel, navRouter: Router?) {
+    //val viewModel = viewModel ?: remember{LogInOutViewModel(authRepository, userRepository)}
     val navRouter = navRouter ?: remember { Router(Screen.LoginScreen) }
     val uiState by viewModel.uiState.collectAsState()
 

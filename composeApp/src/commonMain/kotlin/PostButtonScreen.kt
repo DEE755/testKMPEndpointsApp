@@ -87,13 +87,8 @@ fun PostButtonScreen(repository: AuthRepository) {
         Spacer(modifier = Modifier.height(24.dp))
 
 
-         GoogleSignInButton(
-            serverClientId = "781042180538-ua2j6sktaok93chedst9tib6j9teg4ok.apps.googleusercontent.com",
-            backendUrl = "http://10.0.2.2:7001/google/verify",
-            onResult = { success, message ->
-                result = message ?: ""
-            }
-        )
+
+
     }
 }
 

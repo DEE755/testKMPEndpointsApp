@@ -23,16 +23,16 @@ import com.example.demokmpinterfacetestingapp.Navigation.Router
 import com.example.demokmpinterfacetestingapp.ViewModel.LogInOutViewModel
 import di.ServiceLocator.authRepository
 import di.ServiceLocator.userRepository
-
+import di.ServiceLocator.logInOutViewModel
 @Composable
 fun PromptFromUserSeriesScreen(
     navRouter: Router? = null,
     questionsList: List<String>,
-    viewModel: LogInOutViewModel? = null,
+    viewModel: LogInOutViewModel = logInOutViewModel,
 
     functionToExecute: () -> Unit = {}
 ) {
-    val viewModel = viewModel ?: remember { LogInOutViewModel(authRepository, userRepository) }
+    //val viewModel = viewModel ?: remember { LogInOutViewModel(authRepository, userRepository) }
     val router = navRouter ?: remember { Router() }
     val uiState by viewModel.uiState.collectAsState()
 

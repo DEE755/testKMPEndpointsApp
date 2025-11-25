@@ -8,7 +8,10 @@ import com.example.demokmpinterfacetestingapp.Model.models.requests.MobilePhoneR
 import com.example.demokmpinterfacetestingapp.com.example.demokmpinterfacetestingapp.Model.models.responses.SignInResponse
 import com.example.demokmpinterfacetestingapp.Model.models.User
 import com.example.demokmpinterfacetestingapp.Model.models.requests.EmailSignUpRequest
+import com.example.demokmpinterfacetestingapp.Model.models.requests.UsernameUpdateRequest
+import com.example.demokmpinterfacetestingapp.com.example.demokmpinterfacetestingapp.Model.models.responses.CurrentUserResponse
 import io.ktor.client.HttpClient
+import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
@@ -21,6 +24,23 @@ import kotlinx.serialization.json.Json
 class AndroidAuthRepositoryAndroid(val client: HttpClient) : AuthRepository {
 
     val authBaseUrl: String = CustomApiParams.getBaseUrl() + "/auth"
+
+
+
+    override suspend fun getCurrentUser(): User? {
+        val response: HttpResponse = client.get("$authBaseUrl/get_user_from_token") {
+            headers.append("Content-Type", ContentType.Application.Json.toString())
+            // token is added automatically from the AuthInterceptor
+        }
+
+        if (!response.status.isSuccess()) {
+            throw Exception("Failed to get user: ${response.status}")
+        }
+
+        val parsed = Json { ignoreUnknownKeys = true }
+            .decodeFromString(CurrentUserResponse.serializer(), response.bodyAsText())
+        return parsed.user
+    }
 
 
     override suspend fun sendMobilePhone(phone: String): String {

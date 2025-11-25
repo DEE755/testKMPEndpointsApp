@@ -25,18 +25,22 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.example.demokmpinterfacetestingapp.Const.GoogleSignInParams
+import com.example.demokmpinterfacetestingapp.Model.models.GoogleExtraUserInfo
+import com.example.demokmpinterfacetestingapp.Model.models.User
+import com.example.demokmpinterfacetestingapp.com.example.demokmpinterfacetestingapp.Model.models.responses.GoogleSignInResponse
 import com.example.demokmpinterfacetestingapp.components.GoogleSignInButton
 import com.example.demokmpinterfacetestingapp.result
 import di.ServiceLocator.authRepository
 import di.ServiceLocator.userRepository
-
+import di.ServiceLocator.logInOutViewModel
 @Composable
-fun SignUpScreen(navRouter: Router? = null, viewModel: LogInOutViewModel? = null) {
-    val viewModel = viewModel ?: remember{LogInOutViewModel(authRepository, userRepository)}
+fun SignUpScreen(navRouter: Router? = null, viewModel: LogInOutViewModel = logInOutViewModel) {
     val navRouter = navRouter ?: remember { Router(Screen.LoginScreen) }
     val uiState by viewModel.uiState.collectAsState()
     val connectionStatus by viewModel.connectionStatus.collectAsState()
     val passwordVisible = remember { mutableStateOf(false) }
+
+    lateinit var userInfo: GoogleSignInResponse
 
     if (uiState.currentUser?.username?.isNotEmpty() == true && connectionStatus.isConnected) {
         navRouter.navigate(Screen.AppSelectionScreen)
@@ -103,6 +107,8 @@ fun SignUpScreen(navRouter: Router? = null, viewModel: LogInOutViewModel? = null
         }
 
 
+
+
         Spacer(modifier = Modifier.height(175.dp))
 
         Text("Other sign up methods:")
@@ -112,11 +118,22 @@ fun SignUpScreen(navRouter: Router? = null, viewModel: LogInOutViewModel? = null
         Row{ GoogleSignInButton(
             serverClientId = GoogleSignInParams.serverClientId,
             backendUrl = GoogleSignInParams.backendUrl,
-            onResult = { success, message ->
-                result = message ?: ""
-                if (success) {
+            onResult = { success, result ->
+                if (success && result!=null) {
+                    viewModel.setUser(User(
+                        username = result.username?:"",
+                        email = result.email?:"",
+                        _id = result.user_id?:"",
+                        token = result.token?:"",
+                        avatarURL = result.google_avatar_url?:"", //default google avatar
+                        googleUserInfo = GoogleExtraUserInfo(
+                            name = result.username?:"",
+                            picture = result.google_avatar_url?:"",
+                            email_verified = result.email_verified?:false
+                        )
+                    ))
                     viewModel.setConnected(true)
-                    //viewModel.setUsername(result.username ?: "")
+
                 }
             }
         )
@@ -136,6 +153,8 @@ fun SignUpScreen(navRouter: Router? = null, viewModel: LogInOutViewModel? = null
                }
 
        }
+
+
 }
 
 }

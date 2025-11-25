@@ -19,15 +19,23 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import com.example.demokmpinterfacetestingapp.Model.models.GoogleExtraUserInfo
+import com.example.demokmpinterfacetestingapp.Model.models.User
 import com.example.demokmpinterfacetestingapp.ViewModel.LogInOutViewModel
+import com.example.demokmpinterfacetestingapp.com.example.demokmpinterfacetestingapp.components.UploadImageButton
 import com.example.demokmpinterfacetestingapp.components.GoogleSignInButton
+import com.example.demokmpinterfacetestingapp.util.PickedImage
 import di.ServiceLocator.authRepository
 import di.ServiceLocator.userRepository
+import di.ServiceLocator.logInOutViewModel
+import di.ServiceLocator.tokenProvider
+
 
 
 
@@ -35,12 +43,17 @@ import di.ServiceLocator.userRepository
 var result = ""
 
 @Composable
-fun LoginScreen(viewModel: LogInOutViewModel? =null, navRouter: Router? = null) {
-    val viewModel = viewModel ?: remember{ LogInOutViewModel(authRepository, userRepository) }
+fun LoginScreen(viewModel: LogInOutViewModel=logInOutViewModel, navRouter: Router? = null) {
+    //val viewModel = viewModel ?: remember{ LogInOutViewModel(authRepository, userRepository) }
     val navRouter = navRouter ?: remember { Router(Screen.SignUpScreen) }
     val uiState by viewModel.uiState.collectAsState()
     val connectionStatus by viewModel.connectionStatus.collectAsState()
     val passwordVisible = remember { mutableStateOf(false) }
+
+   //will launch in vm only if
+    viewModel.tryAndGetUserFromToken()
+
+
 
 
     if (connectionStatus.isConnected) {
@@ -96,14 +109,26 @@ fun LoginScreen(viewModel: LogInOutViewModel? =null, navRouter: Router? = null) 
             Spacer(modifier = Modifier.height(10.dp))
 
             Row {
-                GoogleSignInButton(
+                 GoogleSignInButton(
                     serverClientId = GoogleSignInParams.serverClientId,
                     backendUrl = GoogleSignInParams.backendUrl,
-                    onResult = { success, message ->
-                        result = message ?: ""
-                        if (success) {
+                    onResult = { success, result ->
+                        if (success && result!=null) {
+                            viewModel.setUser(User(
+                                username = result.username?:"",
+                                email = result.email?:"",
+                                _id = result.user_id?:"",
+                                token = result.token?:"",
+                                avatarURL = result.google_avatar_url?:"", //default google avatar
+                                googleUserInfo = GoogleExtraUserInfo(
+                                    name = result.username?:"",
+                                    picture = result.google_avatar_url?:"",
+                                    email_verified = result.email_verified?:false
+                                )
+                            ))
+                            viewModel.saveAccessToken(result.token?:"")
                             viewModel.setConnected(true)
-                            //viewModel.setUsername(result.username ?: "")
+
                         }
                     }
                 )
@@ -132,6 +157,14 @@ fun LoginScreen(viewModel: LogInOutViewModel? =null, navRouter: Router? = null) 
                 Text(if (uiState.isLoading) "Loading..." else "Sign up")
             }
 
+
+            UploadImageButton { img ->
+                viewModel.uploadAppImage(
+                    image = img,
+                    folder = "app-images",
+                    fileBasename = "app-logo"
+                )
+            }
 
         }
     }

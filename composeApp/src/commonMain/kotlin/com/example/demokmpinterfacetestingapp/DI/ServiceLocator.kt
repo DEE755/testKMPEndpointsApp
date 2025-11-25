@@ -4,14 +4,21 @@ package di
 import com.example.demokmpinterfacetestingapp.Repository.AuthRepository
 import com.example.demokmpinterfacetestingapp.Repository.CloudFilesRepository
 import com.example.demokmpinterfacetestingapp.Repository.UserRepository
+import com.example.demokmpinterfacetestingapp.ViewModel.LogInOutViewModel
+import com.example.demokmpinterfacetestingapp.com.example.demokmpinterfacetestingapp.AuthTokenProvider
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.*
+import io.ktor.client.plugins.DefaultRequest
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.plugins.logging.DEFAULT
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.client.plugins.logging.Logger
+import io.ktor.http.HttpHeaders.Authorization
+import io.ktor.http.headers
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 
 
@@ -26,11 +33,26 @@ expect fun provideCloudFilesRepository(client : HttpClient): CloudFilesRepositor
 
 expect fun provideLogger(): Logger
 
+expect fun provideAppContextInstance(): Any
+
+expect fun provideTokenProvider(): AuthTokenProvider
+
+
 // 2) ServiceLocator commun (pas expect) qui compose tout
 object ServiceLocator {
 
+//viewModels
+    fun provideLogInOutViewModel(): LogInOutViewModel {
+        return LogInOutViewModel(
+            authRepository = authRepository,
+            userRepository = userRepository,
+            tokenProvider = tokenProvider
+        )
+    }
 
-    val client: HttpClient by lazy {
+
+
+    val publicClient: HttpClient by lazy {
         HttpClient(provideEngine()) {
             install(ContentNegotiation) {
                 json(
@@ -41,6 +63,22 @@ object ServiceLocator {
                     }
                 )
             }
+
+            // Add Authorization "Bearer <token>" if available
+            install(DefaultRequest) {
+
+               runBlocking { //reading token is a suspend function but this block is not suspend, so we use runBlocking, it is ok here because this is called only once at initialization
+                   val token = tokenProvider.getAccessToken()
+
+                   if (!token.isNullOrBlank()) {
+
+                       headers.append(Authorization, "Bearer $token")
+                       tokenProvider.hasBearerSet = true
+                   }
+               }
+            }
+
+
             install(Logging) {
                 logger = provideLogger()
                 level = LogLevel.ALL
@@ -48,15 +86,49 @@ object ServiceLocator {
         }
     }
 
+    /*fun createHttpClient(tokenProvider: AuthTokenProvider): HttpClient {
+        return HttpClient {
+            install(DefaultRequest) {
+                headers.append(HttpHeaders.ContentType, ContentType.Application.Json)
+            }
+            install(HttpSend) {
+                intercept { request ->
+                    val token = tokenProvider.getAccessToken()
+                    if (!token.isNullOrBlank()) {
+                        request.headers.append(HttpHeaders.Authorization, "Bearer $token")
+                    }
+                    execute(request)
+                }
+            }
+        }
+    }*/
+
     // Repo fourni par la plateforme, mais construit ici avec le client commun
     val authRepository: AuthRepository by lazy {
-        provideAuthRepository(client)
+        provideAuthRepository(publicClient)
     }
 
     val userRepository: UserRepository by lazy {
-        provideUserRepository(client)
+        provideUserRepository(publicClient)
     }
 
     val cloudFilesRepository by lazy {
-        provideCloudFilesRepository(client) }
+        provideCloudFilesRepository(publicClient)
+    }
+
+
+    val appContextInstance by lazy {
+        provideAppContextInstance()
+    }
+
+
+    val tokenProvider: AuthTokenProvider by lazy {
+        provideTokenProvider()
+    }
+
+
+    val logInOutViewModel: LogInOutViewModel by lazy {
+        provideLogInOutViewModel()
+    }
+
 }
