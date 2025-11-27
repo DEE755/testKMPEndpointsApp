@@ -1,4 +1,4 @@
-package com.example.demokmpinterfacetestingapp.com.example.demokmpinterfacetestingapp.Model.models.responses
+package com.example.demokmpinterfacetestingapp.Model.models.responses
 
 import com.example.demokmpinterfacetestingapp.Model.models.User
 import kotlinx.serialization.Serializable

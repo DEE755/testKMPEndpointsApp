@@ -5,7 +5,7 @@ import com.example.demokmpinterfacetestingapp.Const.CustomApiParams
 import com.example.demokmpinterfacetestingapp.Model.models.requests.CodeVerificationRequest
 import com.example.demokmpinterfacetestingapp.Model.models.requests.EmailSignInRequest
 import com.example.demokmpinterfacetestingapp.Model.models.requests.MobilePhoneRequest
-import com.example.demokmpinterfacetestingapp.com.example.demokmpinterfacetestingapp.Model.models.responses.SignInResponse
+import com.example.demokmpinterfacetestingapp.Model.models.responses.SignInResponse
 import com.example.demokmpinterfacetestingapp.Model.models.User
 import com.example.demokmpinterfacetestingapp.Model.models.requests.EmailSignUpRequest
 import io.ktor.client.HttpClient
