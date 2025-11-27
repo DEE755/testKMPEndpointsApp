@@ -27,7 +27,7 @@ import androidx.compose.ui.unit.dp
 import com.example.demokmpinterfacetestingapp.Const.GoogleSignInParams
 import com.example.demokmpinterfacetestingapp.Model.models.GoogleExtraUserInfo
 import com.example.demokmpinterfacetestingapp.Model.models.User
-import com.example.demokmpinterfacetestingapp.com.example.demokmpinterfacetestingapp.Model.models.responses.GoogleSignInResponse
+import com.example.demokmpinterfacetestingapp.Model.models.responses.GoogleSignInResponse
 import com.example.demokmpinterfacetestingapp.components.GoogleSignInButton
 import com.example.demokmpinterfacetestingapp.result
 import di.ServiceLocator.authRepository

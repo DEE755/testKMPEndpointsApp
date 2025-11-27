@@ -1,6 +1,6 @@
 package com.example.demokmpinterfacetestingapp.components
 
-import com.example.demokmpinterfacetestingapp.com.example.demokmpinterfacetestingapp.Model.models.recycler.ListItem
+import com.example.demokmpinterfacetestingapp.Model.models.recycler.ListItem
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box

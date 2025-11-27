@@ -1,4 +1,4 @@
-package com.example.demokmpinterfacetestingapp.com.example.demokmpinterfacetestingapp.ui
+package com.example.demokmpinterfacetestingapp.ui
 
 import android.content.Context
 import android.widget.Toast

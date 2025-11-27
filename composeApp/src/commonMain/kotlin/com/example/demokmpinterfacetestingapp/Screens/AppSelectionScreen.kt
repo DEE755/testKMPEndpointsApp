@@ -24,11 +24,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import com.example.demokmpinterfacetestingapp.com.example.demokmpinterfacetestingapp.Model.models.recycler.ListItem
-import com.example.demokmpinterfacetestingapp.com.example.demokmpinterfacetestingapp.components.RecyclerScreen
+import com.example.demokmpinterfacetestingapp.Model.models.recycler.ListItem
+import com.example.demokmpinterfacetestingapp.components.RecyclerScreen
 
-import com.example.demokmpinterfacetestingapp.com.example.demokmpinterfacetestingapp.components.UploadImageButton
-import com.example.demokmpinterfacetestingapp.com.example.demokmpinterfacetestingapp.ui.showToast
+import com.example.demokmpinterfacetestingapp.components.UploadImageButton
+import com.example.demokmpinterfacetestingapp.ui.showToast
 import com.example.demokmpinterfacetestingapp.util.PickedImage
 
 import com.example.demokmpinterfacetestingapp.util.decodeImage

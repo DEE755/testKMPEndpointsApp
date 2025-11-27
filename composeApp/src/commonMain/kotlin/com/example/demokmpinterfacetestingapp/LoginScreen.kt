@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.dp
 import com.example.demokmpinterfacetestingapp.Model.models.GoogleExtraUserInfo
 import com.example.demokmpinterfacetestingapp.Model.models.User
 import com.example.demokmpinterfacetestingapp.ViewModel.LogInOutViewModel
-import com.example.demokmpinterfacetestingapp.com.example.demokmpinterfacetestingapp.components.UploadImageButton
+import com.example.demokmpinterfacetestingapp.components.UploadImageButton
 import com.example.demokmpinterfacetestingapp.components.GoogleSignInButton
 import com.example.demokmpinterfacetestingapp.util.PickedImage
 import di.ServiceLocator.authRepository

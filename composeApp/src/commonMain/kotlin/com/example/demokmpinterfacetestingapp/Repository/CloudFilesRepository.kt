@@ -3,7 +3,7 @@ package com.example.demokmpinterfacetestingapp.Repository
 import androidx.compose.ui.graphics.ImageBitmap
 import com.example.demokmpinterfacetestingapp.Model.models.requests.Visibility
 import com.example.demokmpinterfacetestingapp.Model.models.responses.R2FilePresignResponse
-import com.example.demokmpinterfacetestingapp.com.example.demokmpinterfacetestingapp.Model.models.responses.GoogleSignInResponse
+import com.example.demokmpinterfacetestingapp.Model.models.responses.GoogleSignInResponse
 
 interface CloudFilesRepository {
     suspend fun presignAppFileUpload(

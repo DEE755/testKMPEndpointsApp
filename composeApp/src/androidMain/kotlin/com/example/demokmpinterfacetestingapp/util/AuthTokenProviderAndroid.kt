@@ -2,7 +2,7 @@ package com.example.demokmpinterfacetestingapp.util
 
 import android.content.Context
 import android.content.SharedPreferences
-import com.example.demokmpinterfacetestingapp.com.example.demokmpinterfacetestingapp.AuthTokenProvider
+import com.example.demokmpinterfacetestingapp.AuthTokenProvider
 import androidx.core.content.edit
 
 class AuthTokenProviderAndroid(private val context: Context) : AuthTokenProvider
