@@ -1,3 +1,3 @@
-package com.example.demokmpinterfacetestingapp.com.example.demokmpinterfacetestingapp.ui
+package com.example.demokmpinterfacetestingapp.ui
 
 expect suspend fun showToast(message: String)

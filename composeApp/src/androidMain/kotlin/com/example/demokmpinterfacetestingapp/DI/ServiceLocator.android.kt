@@ -9,7 +9,7 @@ import com.example.demokmpinterfacetestingapp.Repository.AndroidUserRepository
 import com.example.demokmpinterfacetestingapp.Repository.CloudFilesRepository
 import com.example.demokmpinterfacetestingapp.Repository.CloudFilesRepositoryAndroid
 import com.example.demokmpinterfacetestingapp.Repository.UserRepository
-import com.example.demokmpinterfacetestingapp.com.example.demokmpinterfacetestingapp.AuthTokenProvider
+import com.example.demokmpinterfacetestingapp.AuthTokenProvider
 import com.example.demokmpinterfacetestingapp.util.AuthTokenProviderAndroid
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngineFactory

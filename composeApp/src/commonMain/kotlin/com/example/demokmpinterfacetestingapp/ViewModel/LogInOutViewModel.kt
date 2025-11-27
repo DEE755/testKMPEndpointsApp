@@ -5,8 +5,8 @@ import com.example.demokmpinterfacetestingapp.Model.models.requests.Visibility
 import com.example.demokmpinterfacetestingapp.Repository.AuthRepository
 import com.example.demokmpinterfacetestingapp.Repository.CloudFilesRepository
 import com.example.demokmpinterfacetestingapp.Repository.UserRepository
-import com.example.demokmpinterfacetestingapp.com.example.demokmpinterfacetestingapp.AuthTokenProvider
-import com.example.demokmpinterfacetestingapp.com.example.demokmpinterfacetestingapp.ui.showToast
+import com.example.demokmpinterfacetestingapp.AuthTokenProvider
+import com.example.demokmpinterfacetestingapp.ui.showToast
 import com.example.demokmpinterfacetestingapp.util.PickedImage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

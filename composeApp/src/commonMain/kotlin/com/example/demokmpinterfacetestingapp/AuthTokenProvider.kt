@@ -1,4 +1,4 @@
-package com.example.demokmpinterfacetestingapp.com.example.demokmpinterfacetestingapp
+package com.example.demokmpinterfacetestingapp
 
 interface AuthTokenProvider {
 

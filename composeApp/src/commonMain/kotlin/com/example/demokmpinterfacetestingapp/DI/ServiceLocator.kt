@@ -5,7 +5,7 @@ import com.example.demokmpinterfacetestingapp.Repository.AuthRepository
 import com.example.demokmpinterfacetestingapp.Repository.CloudFilesRepository
 import com.example.demokmpinterfacetestingapp.Repository.UserRepository
 import com.example.demokmpinterfacetestingapp.ViewModel.LogInOutViewModel
-import com.example.demokmpinterfacetestingapp.com.example.demokmpinterfacetestingapp.AuthTokenProvider
+import com.example.demokmpinterfacetestingapp.AuthTokenProvider
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.*
 import io.ktor.client.plugins.DefaultRequest

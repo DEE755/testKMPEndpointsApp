@@ -1,4 +1,4 @@
-package com.example.demokmpinterfacetestingapp.com.example.demokmpinterfacetestingapp.Model.models.recycler
+package com.example.demokmpinterfacetestingapp.Model.models.recycler
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
