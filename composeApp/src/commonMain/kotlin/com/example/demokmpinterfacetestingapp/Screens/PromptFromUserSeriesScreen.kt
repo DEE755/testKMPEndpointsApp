@@ -21,33 +21,32 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.demokmpinterfacetestingapp.Navigation.Router
 import com.example.demokmpinterfacetestingapp.ViewModel.LogInOutViewModel
-import di.ServiceLocator.authRepository
-import di.ServiceLocator.userRepository
 import di.ServiceLocator.logInOutViewModel
 @Composable
 fun PromptFromUserSeriesScreen(
     navRouter: Router? = null,
-    questionsList: List<String>,
+    questionsAnswersMap : MutableMap<String,String>,
     viewModel: LogInOutViewModel = logInOutViewModel,
 
-    functionToExecute: () -> Unit = {}
+    onAllQuestionsAnswered: () -> Unit = {}
 ) {
     //val viewModel = viewModel ?: remember { LogInOutViewModel(authRepository, userRepository) }
     val router = navRouter ?: remember { Router() }
     val uiState by viewModel.uiState.collectAsState()
 
-    val answers = remember { mutableStateListOf<String>() }
+
     var currentIndex by rememberSaveable { mutableStateOf(0) }
     var currentAnswer by rememberSaveable { mutableStateOf("") }
     val executed = remember { mutableStateOf(false) }
+    val questions = viewModel.signUpQuestionsAnswersMap.keys.toList()
 
     Column(modifier = Modifier.fillMaxSize().padding(start = 16.dp, end = 16.dp)) {
         Spacer(modifier = Modifier.padding(28.dp))
-        if (currentIndex >= questionsList.size) {
-            Text("Answers: ${answers.joinToString()}")
-            LaunchedEffect(currentIndex, answers.size) {
+        if (currentIndex >= questionsAnswersMap.size) {
+            //Text("Answers: ${answers.joinToString()}")
+            LaunchedEffect(currentIndex, viewModel.signUpQuestionsAnswersMap.size) {
                 if (!executed.value) {
-                    functionToExecute()
+                    onAllQuestionsAnswered()
                     executed.value = true
                 }
             }
@@ -55,7 +54,7 @@ fun PromptFromUserSeriesScreen(
             return@Column
         }
 
-        Text(text = questionsList.getOrNull(currentIndex) ?: "")
+        Text(text = questions.getOrNull(currentIndex) ?: "")
 
         TextField(
             value = uiState.temporaryUsername,
@@ -65,15 +64,20 @@ fun PromptFromUserSeriesScreen(
 
         Row {
             Button(onClick = {
-                if (currentAnswer.isNotBlank() || uiState.temporaryUsername.isNotBlank()) {//change later
-                    currentAnswer = uiState.temporaryUsername //change late
-                    if (answers.size > currentIndex) answers[currentIndex] = currentAnswer
-                    else answers.add(currentAnswer)
-                    currentAnswer = ""
-                    currentIndex++
-                }
-            }) {
-                Text(if (currentIndex >= questionsList.size - 1) "Finish" else "Continue")
+               if (currentAnswer.isNotBlank() || uiState.temporaryUsername.isNotBlank()) { // change later
+                        currentAnswer = uiState.temporaryUsername // change later
+                   viewModel.signUpQuestionsAnswersMap.let { map ->
+                   if (questions.size > currentIndex) map[questions[currentIndex]] = currentAnswer
+                   else map[questions[currentIndex]]= currentAnswer
+
+                            }
+
+                        currentAnswer = ""
+                        currentIndex++
+                            }
+                    }
+            ) {
+                Text(if (currentIndex >= questions.size - 1) "Finish" else "Continue")
             }
 
             Button(onClick = { }) {

@@ -2,14 +2,17 @@ package com.example.demokmpinterfacetestingapp.Repository
 
 import android.util.Log
 import com.example.demokmpinterfacetestingapp.Const.CustomApiParams
+import com.example.demokmpinterfacetestingapp.Model.models.GoogleExtraUserInfo
 import com.example.demokmpinterfacetestingapp.Model.models.requests.CodeVerificationRequest
 import com.example.demokmpinterfacetestingapp.Model.models.requests.EmailSignInRequest
 import com.example.demokmpinterfacetestingapp.Model.models.requests.MobilePhoneRequest
-import com.example.demokmpinterfacetestingapp.com.example.demokmpinterfacetestingapp.Model.models.responses.SignInResponse
+import com.example.demokmpinterfacetestingapp.Model.models.responses.SignInResponse
+
 import com.example.demokmpinterfacetestingapp.Model.models.User
 import com.example.demokmpinterfacetestingapp.Model.models.requests.EmailSignUpRequest
-import com.example.demokmpinterfacetestingapp.Model.models.requests.UsernameUpdateRequest
-import com.example.demokmpinterfacetestingapp.com.example.demokmpinterfacetestingapp.Model.models.responses.CurrentUserResponse
+import com.example.demokmpinterfacetestingapp.Model.models.responses.CurrentUserResponse
+import com.example.demokmpinterfacetestingapp.Model.models.responses.GoogleSignInResponse
+import di.ServiceLocator.tokenProvider
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.request.post
@@ -40,6 +43,50 @@ class AndroidAuthRepositoryAndroid(val client: HttpClient) : AuthRepository {
         val parsed = Json { ignoreUnknownKeys = true }
             .decodeFromString(CurrentUserResponse.serializer(), response.bodyAsText())
         return parsed.user
+    }
+
+    override suspend fun googleSignIn(idToken: String, nonce: String?): User {
+        val response: HttpResponse = client.post("$authBaseUrl/google-signin") {
+            contentType(ContentType.Application.Json)
+            setBody(mapOf("id_token" to idToken, "nonce" to nonce))
+        }
+
+        if (!response.status.isSuccess()) {
+            throw Exception("Failed to sign in with Google: ${response.status}")
+        }
+
+        val parsed = Json { ignoreUnknownKeys = true }
+            .decodeFromString(GoogleSignInResponse.serializer(), response.bodyAsText())
+
+        val userId = parsed.user_id ?: throw IllegalStateException("Google Sign-In response missing user_id")
+        val username = parsed.username ?: throw IllegalStateException("Google Sign-In response missing username")
+        val token = parsed.token ?: throw IllegalStateException("Google Sign-In response missing token")
+        val email = parsed.email ?: throw IllegalStateException("Google Sign-In response missing email")
+        val avatarUrl = parsed.google_avatar_url
+        val emailVerified =
+            parsed.email_verified ?: throw IllegalStateException("Google Sign-In response missing email_verified")
+
+        tokenProvider.saveAccessToken(token)
+        tokenProvider.hasBearerSet = true
+
+        return User(
+            _id = userId,
+            username = username,
+            email = email,
+            token = token,
+            avatarURL = avatarUrl,
+            googleUserInfo = GoogleExtraUserInfo(
+                name = username,
+                picture = avatarUrl,
+                email_verified = emailVerified
+            )
+        )
+
+    }
+
+    override suspend fun saveAccessToken(token: String?) {
+        tokenProvider.saveAccessToken(token)
+        tokenProvider.hasBearerSet = true
     }
 
 
@@ -89,7 +136,7 @@ class AndroidAuthRepositoryAndroid(val client: HttpClient) : AuthRepository {
     }
 
 
-    override suspend fun emailSignUp(email: String, password : String, username: String){
+    override suspend fun emailSignUp(email: String, password : String, username: String): User? {
 
         val request = EmailSignUpRequest(email, password, username)
         val response: HttpResponse = client.post("$authBaseUrl/signup") {
@@ -97,9 +144,23 @@ class AndroidAuthRepositoryAndroid(val client: HttpClient) : AuthRepository {
             setBody(request)
         }
 
+
         if (!response.status.isSuccess()) {
             throw Exception("Failed to sign up: ${response.status}")
         }
+
+        Log.d("NetworkRepositoryImpl", "Email sign-up: test " )
+        
+        
+        //TODO(STUCK HERE - NEED TO PARSE THE RESPONSE AND RETURN THE USER)
+        val parsed = Json.decodeFromString(SignInResponse.serializer(), response.bodyAsText())
+
+        //tokenProvider.saveAccessToken(parsed.token)
+        //tokenProvider.hasBearerSet = true
+
+        Log.d("NetworkRepositoryImpl", "Email sign-up: $parsed")
+
+        return parsed.user
     }
 
 

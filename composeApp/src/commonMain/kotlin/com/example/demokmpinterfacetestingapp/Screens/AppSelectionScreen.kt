@@ -47,7 +47,7 @@ fun AppSelectionScreen(viewModel: LogInOutViewModel = logInOutViewModel, navRout
 
     val uiState by viewModel.uiState.collectAsState()
     Column(modifier = Modifier.padding(30.dp)) {
-        Text("Hello ${uiState.currentUser?.username ?: ""}") //with personal info: id:${uiState.currentUser?._id}, name:${uiState.currentUser?.googleUserInfo?.family_name} ${uiState.currentUser?.googleUserInfo?.given_name}, ${uiState.currentUser?.googleUserInfo?.picture}!")
+        Text("Hello ${uiState.currentUser?.username}") //with personal info: id:${uiState.currentUser?._id}, name:${uiState.currentUser?.googleUserInfo?.family_name} ${uiState.currentUser?.googleUserInfo?.given_name}, ${uiState.currentUser?.googleUserInfo?.picture}!")
 
 
         uiState.currentUser?.googleUserInfo?.picture?.let { imageUrl ->

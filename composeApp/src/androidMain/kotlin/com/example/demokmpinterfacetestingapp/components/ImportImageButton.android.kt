@@ -1,4 +1,4 @@
-package com.example.demokmpinterfacetestingapp.com.example.demokmpinterfacetestingapp.components
+package com.example.demokmpinterfacetestingapp.components
 
 import android.content.Context
 import android.net.Uri

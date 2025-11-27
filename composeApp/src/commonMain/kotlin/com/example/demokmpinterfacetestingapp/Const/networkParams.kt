@@ -13,6 +13,6 @@ expect class CustomApiParams {
 class GoogleSignInParams {
     companion object {
         const val serverClientId = "781042180538-ua2j6sktaok93chedst9tib6j9teg4ok.apps.googleusercontent.com"
-        val backendUrl = CustomApiParams.getBaseUrl() + "/google/verify"
+        val backendUrl = CustomApiParams.getBaseUrl() + "/auth/google/verify"
     }
 }

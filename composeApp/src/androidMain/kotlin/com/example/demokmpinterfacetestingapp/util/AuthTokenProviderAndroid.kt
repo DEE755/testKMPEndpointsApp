@@ -15,7 +15,7 @@ class AuthTokenProviderAndroid(private val context: Context) : AuthTokenProvider
         prefs.getString("access_token", null)
 
 
-    override suspend fun saveAccessToken(token: String) {
+    override suspend fun saveAccessToken(token: String?) {
         prefs.edit { putString("access_token", token) }
     }
 

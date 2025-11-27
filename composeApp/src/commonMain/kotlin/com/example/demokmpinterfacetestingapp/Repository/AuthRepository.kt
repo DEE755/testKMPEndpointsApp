@@ -10,8 +10,12 @@ interface AuthRepository {
     //Email Auth
      suspend fun emailSignIn(email: String, password : String): User?
 
-    suspend fun emailSignUp(email: String, password : String, username: String)
+    suspend fun emailSignUp(email: String, password : String, username: String) : User?
 
 
     suspend fun getCurrentUser(): User?
+
+    suspend fun googleSignIn(idToken: String, nonce: String?): User?
+
+    suspend fun saveAccessToken(token: String?)
 }

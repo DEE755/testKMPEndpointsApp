@@ -33,6 +33,8 @@ import com.example.demokmpinterfacetestingapp.result
 import di.ServiceLocator.authRepository
 import di.ServiceLocator.userRepository
 import di.ServiceLocator.logInOutViewModel
+import kotlinx.coroutines.runBlocking
+
 @Composable
 fun SignUpScreen(navRouter: Router? = null, viewModel: LogInOutViewModel = logInOutViewModel) {
     val navRouter = navRouter ?: remember { Router(Screen.LoginScreen) }
@@ -87,8 +89,21 @@ fun SignUpScreen(navRouter: Router? = null, viewModel: LogInOutViewModel = logIn
             onClick = {
                 navRouter.navigate(
                     Screen.PromptFromUserSeriesScreen(
-                        listOf("Please enter an username:"),
-                        viewModel::emailSignUp
+                        viewModel.signUpQuestionsAnswersMap,
+                        {
+                            viewModel.signUpQuestionsAnswersMap.values.first().let {
+                                runBlocking {
+                                    viewModel.setUsername(it)
+                                    viewModel.emailSignUp()
+
+                                }
+                                if (viewModel.connectionStatus.value.isConnected) {
+                                    navRouter.navigate(
+                                        Screen.AppSelectionScreen
+                                    )
+                                }
+                            }
+                        }
                     )
                 )
             },
@@ -115,7 +130,7 @@ fun SignUpScreen(navRouter: Router? = null, viewModel: LogInOutViewModel = logIn
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        Row{ GoogleSignInButton(
+        Row{ GoogleSignInButton(//TODO(REPLACE WITH Google sign in in VM)
             serverClientId = GoogleSignInParams.serverClientId,
             backendUrl = GoogleSignInParams.backendUrl,
             onResult = { success, result ->

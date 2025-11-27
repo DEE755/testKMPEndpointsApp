@@ -15,7 +15,7 @@ sealed class Screen {
     object AppBrowseScreen : Screen()
 
     data class PromptFromUserSeriesScreen(
-        val questionList: List<String>,
+        val questionAnswerMap: MutableMap<String, String>,
         val functionToExecute: () -> Unit
     ) : Screen()
 

@@ -50,7 +50,7 @@ fun LoginScreen(viewModel: LogInOutViewModel=logInOutViewModel, navRouter: Route
     val connectionStatus by viewModel.connectionStatus.collectAsState()
     val passwordVisible = remember { mutableStateOf(false) }
 
-   //will launch in vm only if
+   //will launch in vm only if it has token saved from initialization
     viewModel.tryAndGetUserFromToken()
 
 
@@ -126,7 +126,6 @@ fun LoginScreen(viewModel: LogInOutViewModel=logInOutViewModel, navRouter: Route
                                     email_verified = result.email_verified?:false
                                 )
                             ))
-                            viewModel.saveAccessToken(result.token?:"")
                             viewModel.setConnected(true)
 
                         }

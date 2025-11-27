@@ -12,7 +12,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import com.example.demokmpinterfacetestingapp.com.example.demokmpinterfacetestingapp.Model.models.responses.GoogleSignInResponse
+import com.example.demokmpinterfacetestingapp.Model.models.responses.GoogleSignInResponse
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
@@ -27,7 +27,7 @@ import org.json.JSONObject
 import java.util.UUID
 
 @Composable
-actual fun GoogleSignInButton(
+actual fun GoogleSignInButton(//TODO(call VM->REPOSITORY
     serverClientId: String,
     backendUrl: String,
     onResult: (Boolean, GoogleSignInResponse?) -> Unit

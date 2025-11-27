@@ -45,12 +45,12 @@ fun AppRoot() {
         appSelectionScreen = { AppSelectionScreen(viewModel, navRouter) },
         appCreationScreen = { AppCreationScreen() },
         appBrowseScreen = { AppBrowseScreen()},
-        promptFromUserSeriesScreen = { routerParam, questionsList, functionToExecute ->
+        promptFromUserSeriesScreen = { routerParam, questionsAnswerMap, functionToExecute ->
             PromptFromUserSeriesScreen(
-                questionsList = questionsList,
-                viewModel = viewModel,
                 navRouter = routerParam,
-                functionToExecute = functionToExecute
+                viewModel = viewModel,
+                questionsAnswersMap = questionsAnswerMap,
+                onAllQuestionsAnswered = functionToExecute
             )
         },
     )

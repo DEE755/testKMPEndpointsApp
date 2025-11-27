@@ -1,4 +1,4 @@
-package com.example.demokmpinterfacetestingapp.com.example.demokmpinterfacetestingapp.components
+package com.example.demokmpinterfacetestingapp.components
 
 import com.example.demokmpinterfacetestingapp.com.example.demokmpinterfacetestingapp.Model.models.recycler.ListItem
 import androidx.compose.foundation.clickable
