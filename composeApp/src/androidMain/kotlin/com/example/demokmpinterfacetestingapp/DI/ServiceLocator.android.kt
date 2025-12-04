@@ -1,4 +1,4 @@
-package di
+package com.example.demokmpinterfacetestingapp.DI
 
 import android.content.Context
 import android.util.Log

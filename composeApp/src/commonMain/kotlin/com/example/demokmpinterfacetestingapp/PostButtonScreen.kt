@@ -1,4 +1,4 @@
-package com.example.demokmpinterfacetestingapp
+package com.example.demokmpinterfacetestingapp.com.example.demokmpinterfacetestingapp
 
 import com.example.demokmpinterfacetestingapp.Repository.AuthRepository
 import androidx.compose.runtime.*
@@ -6,7 +6,6 @@ import androidx.compose.material3.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.demokmpinterfacetestingapp.components.GoogleSignInButton
 import kotlinx.coroutines.launch
 
 @Composable

@@ -15,10 +15,10 @@ import com.example.demokmpinterfacetestingapp.Screens.AppBrowseScreen
 import com.example.demokmpinterfacetestingapp.Screens.AppCreationScreen
 import com.example.demokmpinterfacetestingapp.Screens.AppSelectionScreen
 import com.example.demokmpinterfacetestingapp.Screens.PromptFromUserSeriesScreen
-import di.ServiceLocator.authRepository
-import di.ServiceLocator.userRepository
-import di.ServiceLocator.cloudFilesRepository
-import di.ServiceLocator.tokenProvider
+import com.example.demokmpinterfacetestingapp.DI.ServiceLocator.authRepository
+import com.example.demokmpinterfacetestingapp.DI.ServiceLocator.userRepository
+import com.example.demokmpinterfacetestingapp.DI.ServiceLocator.cloudFilesRepository
+import com.example.demokmpinterfacetestingapp.DI.ServiceLocator.tokenProvider
 @Composable
 fun AppRoot() {
     val navRouter = remember { Router() }

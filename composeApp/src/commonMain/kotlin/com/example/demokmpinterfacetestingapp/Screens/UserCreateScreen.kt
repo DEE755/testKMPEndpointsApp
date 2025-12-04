@@ -9,9 +9,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import di.ServiceLocator.authRepository
-import di.ServiceLocator.userRepository
-import di.ServiceLocator.logInOutViewModel
+
+import com.example.demokmpinterfacetestingapp.DI.ServiceLocator.logInOutViewModel
 
 @Composable
 fun UserCreateScreen(viewModel: LogInOutViewModel=logInOutViewModel, navRouter: Router?) {

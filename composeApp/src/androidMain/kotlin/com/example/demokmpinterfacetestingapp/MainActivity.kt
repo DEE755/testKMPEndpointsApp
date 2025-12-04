@@ -8,9 +8,8 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
-import di.ServiceLocator
-import di.ServiceLocator.logInOutViewModel
-import di.initAppContext
+import com.example.demokmpinterfacetestingapp.DI.ServiceLocator.logInOutViewModel
+import com.example.demokmpinterfacetestingapp.DI.initAppContext
 
 val logInOutVM: LogInOutViewModel by lazy {
     /*LogInOutViewModel(

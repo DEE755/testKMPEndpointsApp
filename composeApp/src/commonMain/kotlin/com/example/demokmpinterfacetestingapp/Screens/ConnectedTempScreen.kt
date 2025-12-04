@@ -14,9 +14,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.demokmpinterfacetestingapp.ViewModel.LogInOutViewModel
-import di.ServiceLocator.authRepository
-import di.ServiceLocator.userRepository
-import di.ServiceLocator.logInOutViewModel
+
+import com.example.demokmpinterfacetestingapp.DI.ServiceLocator.logInOutViewModel
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable

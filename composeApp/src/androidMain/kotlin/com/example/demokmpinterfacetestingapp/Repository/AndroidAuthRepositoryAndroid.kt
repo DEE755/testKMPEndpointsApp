@@ -12,7 +12,7 @@ import com.example.demokmpinterfacetestingapp.Model.models.User
 import com.example.demokmpinterfacetestingapp.Model.models.requests.EmailSignUpRequest
 import com.example.demokmpinterfacetestingapp.Model.models.responses.CurrentUserResponse
 import com.example.demokmpinterfacetestingapp.Model.models.responses.GoogleSignInResponse
-import di.ServiceLocator.tokenProvider
+import com.example.demokmpinterfacetestingapp.DI.ServiceLocator.tokenProvider
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.request.post
@@ -150,13 +150,16 @@ class AndroidAuthRepositoryAndroid(val client: HttpClient) : AuthRepository {
         }
 
         Log.d("NetworkRepositoryImpl", "Email sign-up: test " )
-        
-        
-        //TODO(STUCK HERE - NEED TO PARSE THE RESPONSE AND RETURN THE USER)
-        val parsed = Json.decodeFromString(SignInResponse.serializer(), response.bodyAsText())
 
-        //tokenProvider.saveAccessToken(parsed.token)
-        //tokenProvider.hasBearerSet = true
+        val parsed = try {
+            Json { ignoreUnknownKeys = true }
+                .decodeFromString(SignInResponse.serializer(), response.bodyAsText())
+        } catch (e: Exception) {
+            Log.e("NetworkRepositoryImpl", "Deserialization failed: ${response.bodyAsText()}", e)
+            throw e
+        }
+        tokenProvider.saveAccessToken(parsed.token)
+        tokenProvider.hasBearerSet = true
 
         Log.d("NetworkRepositoryImpl", "Email sign-up: $parsed")
 

@@ -29,10 +29,7 @@ import com.example.demokmpinterfacetestingapp.Model.models.GoogleExtraUserInfo
 import com.example.demokmpinterfacetestingapp.Model.models.User
 import com.example.demokmpinterfacetestingapp.Model.models.responses.GoogleSignInResponse
 import com.example.demokmpinterfacetestingapp.components.GoogleSignInButton
-import com.example.demokmpinterfacetestingapp.result
-import di.ServiceLocator.authRepository
-import di.ServiceLocator.userRepository
-import di.ServiceLocator.logInOutViewModel
+import com.example.demokmpinterfacetestingapp.DI.ServiceLocator.logInOutViewModel
 import kotlinx.coroutines.runBlocking
 
 @Composable

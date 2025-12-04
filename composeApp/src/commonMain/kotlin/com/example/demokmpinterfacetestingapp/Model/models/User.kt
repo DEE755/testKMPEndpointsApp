@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 data class User(val _id: String,
                 val username: String,
                 val email: String,
-                val token: String,
+                val token: String?=null, //later remove completely
                 val avatarURL: String?=null,
                 val googleUserInfo: GoogleExtraUserInfo? =null,
                 val appleUserInfo: AppleUserInfo? = null)

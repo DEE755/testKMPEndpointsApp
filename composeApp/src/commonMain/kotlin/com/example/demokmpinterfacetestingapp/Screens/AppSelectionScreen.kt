@@ -35,7 +35,7 @@ import com.example.demokmpinterfacetestingapp.util.decodeImage
 import io.kamel.image.KamelImage
 import io.kamel.image.asyncPainterResource
 import kotlinx.coroutines.launch
-import di.ServiceLocator.logInOutViewModel
+import com.example.demokmpinterfacetestingapp.DI.ServiceLocator.logInOutViewModel
 import kotlinx.coroutines.runBlocking
 
 //TODO(: change navRouter to imported by di serviceLocator)

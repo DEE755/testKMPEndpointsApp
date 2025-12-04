@@ -21,7 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.demokmpinterfacetestingapp.Navigation.Router
 import com.example.demokmpinterfacetestingapp.ViewModel.LogInOutViewModel
-import di.ServiceLocator.logInOutViewModel
+import com.example.demokmpinterfacetestingapp.DI.ServiceLocator.logInOutViewModel
 @Composable
 fun PromptFromUserSeriesScreen(
     navRouter: Router? = null,
