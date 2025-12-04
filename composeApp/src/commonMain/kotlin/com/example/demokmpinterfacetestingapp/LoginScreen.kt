@@ -19,14 +19,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import com.example.demokmpinterfacetestingapp.Model.models.GoogleExtraUserInfo
-import com.example.demokmpinterfacetestingapp.Model.models.User
 import com.example.demokmpinterfacetestingapp.ViewModel.LogInOutViewModel
 import com.example.demokmpinterfacetestingapp.components.UploadImageButton
 import com.example.demokmpinterfacetestingapp.components.GoogleSignInButton
@@ -56,7 +53,7 @@ fun LoginScreen(viewModel: LogInOutViewModel=logInOutViewModel, navRouter: Route
 
     if (connectionStatus.isConnected) {
         if (uiState.currentUser?.username?.isEmpty() == true){
-            navRouter.navigate(Screen.AppSelectionScreen) //TODO (set a version PromptFromUserSeriesScreen to collect username and use updateusername endpoint / or collect username from google automaticaly make validation of the username)
+            navRouter.navigate(Screen.AppSelectionScreen)
 
             }
 
@@ -110,24 +107,7 @@ fun LoginScreen(viewModel: LogInOutViewModel=logInOutViewModel, navRouter: Route
                  GoogleSignInButton(
                     serverClientId = GoogleSignInParams.serverClientId,
                     backendUrl = GoogleSignInParams.backendUrl,
-                    onResult = { success, result ->
-                        if (success && result!=null) {
-                            viewModel.setUser(User(
-                                username = result.username?:"",
-                                email = result.email?:"",
-                                _id = result.user_id?:"",
-                                token = result.token?:"",
-                                avatarURL = result.google_avatar_url?:"", //default google avatar
-                                googleUserInfo = GoogleExtraUserInfo(
-                                    name = result.username?:"",
-                                    picture = result.google_avatar_url?:"",
-                                    email_verified = result.email_verified?:false
-                                )
-                            ))
-                            viewModel.setConnected(true)
-
-                        }
-                    }
+                    onSuccess = {navRouter.navigate(Screen.AppSelectionScreen) }
                 )
 
                 Spacer(modifier = Modifier.width(15.dp))

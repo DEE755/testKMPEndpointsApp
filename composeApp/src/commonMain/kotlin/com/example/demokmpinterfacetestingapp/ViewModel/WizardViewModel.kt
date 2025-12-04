@@ -14,7 +14,8 @@ data class WizardUiState(
     val nextEnabled: Boolean = false,
     val appName: String = "",
     var selectedColor: Color? = null,
-    val toggledList: List<Module> = emptyList()
+    val toggledList: List<Module> = emptyList(),
+    val pickedImage: ByteArray? = null //TODO(change to appropriate image type
 )
 
     private val _uiState = MutableStateFlow(WizardUiState())
@@ -53,6 +54,12 @@ data class WizardUiState(
 
     fun selectColor(color: Color) {
         _uiState.value = _uiState.value.copy(selectedColor = color)
+        enableNext(true)
+    }
+
+
+    fun setPickedImage(imageData: ByteArray) {
+        _uiState.value = _uiState.value.copy(pickedImage = imageData)
         enableNext(true)
     }
 

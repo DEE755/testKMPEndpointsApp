@@ -11,13 +11,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.demokmpinterfacetestingapp.DI.ServiceLocator.logInOutViewModel
 import com.example.demokmpinterfacetestingapp.DI.initAppContext
 
-val logInOutVM: LogInOutViewModel by lazy {
-    /*LogInOutViewModel(
-        ServiceLocator.authRepository, ServiceLocator.userRepository, ServiceLocator.cloudFilesRepository,
-        tokenProvider = ServiceLocator.tokenProvider
-    )*/
-    logInOutViewModel
-}
+
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,7 +22,7 @@ class MainActivity : ComponentActivity() {
         initAppContext(context = this)
 
         setContent {
-            MainScreen(logInOutVM)
+            MainScreen(logInOutViewModel)
         }
     }
 }
@@ -35,5 +30,5 @@ class MainActivity : ComponentActivity() {
 @Preview
 @Composable
 fun AppAndroidPreview() {
-    MainScreen(logInOutVM)
+    MainScreen(logInOutViewModel)
 }

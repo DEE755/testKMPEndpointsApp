@@ -1,11 +1,14 @@
 package com.example.demokmpinterfacetestingapp.Screens
+import androidx.compose.foundation.Image
 import com.example.demokmpinterfacetestingapp.components.WizardScreen
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -26,6 +29,9 @@ import com.example.demokmpinterfacetestingapp.components.ColorSelector
 import com.example.demokmpinterfacetestingapp.DI.ServiceLocator.wizardViewModel
 import com.example.demokmpinterfacetestingapp.Model.models.Module.Module
 import com.example.demokmpinterfacetestingapp.components.CheckboxWithLabel
+import com.example.demokmpinterfacetestingapp.components.UploadImageButton
+import com.example.demokmpinterfacetestingapp.util.PickedImage
+import com.example.demokmpinterfacetestingapp.util.decodeImage
 
 val viewModel: WizardViewModel = wizardViewModel
 @Composable
@@ -36,7 +42,8 @@ fun AppCreationScreen() {
     val pages = listOf<@Composable () -> Unit>(
         { ChooseName() },
         { ChooseModules() },
-        { ChooseColor() }
+        { ChooseColor() },
+        { chooseAppImage() }
 
         // Add more steps as needed
 
@@ -99,6 +106,31 @@ fun ChooseColor() {
         }
     }
 }
+
+
+@Composable
+fun chooseAppImage() {
+    viewModel.enableNext(true)
+    var selected by remember { mutableStateOf<PickedImage?>(null) }
+    Column(Modifier.padding(16.dp)) {
+    Text("Choose an App Image (optional)")
+
+
+        UploadImageButton { img -> selected = img }
+
+
+        Spacer(Modifier.height(12.dp))
+        selected?.let { image ->
+            val bmp = remember(image) { decodeImage(image.bytes) }
+            viewModel.setPickedImage(image.bytes)
+            Image(bitmap = bmp, contentDescription = "Selected image", modifier = Modifier.size(120.dp))
+            Text("Selected Image for app ${viewModel.uiState.value.appName}")
+
+        }
+        }
+    }
+
+
 
 
 

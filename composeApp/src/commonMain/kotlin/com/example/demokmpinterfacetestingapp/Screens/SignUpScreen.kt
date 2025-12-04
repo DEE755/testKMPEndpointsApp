@@ -25,8 +25,6 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.example.demokmpinterfacetestingapp.Const.GoogleSignInParams
-import com.example.demokmpinterfacetestingapp.Model.models.GoogleExtraUserInfo
-import com.example.demokmpinterfacetestingapp.Model.models.User
 import com.example.demokmpinterfacetestingapp.Model.models.responses.GoogleSignInResponse
 import com.example.demokmpinterfacetestingapp.components.GoogleSignInButton
 import com.example.demokmpinterfacetestingapp.DI.ServiceLocator.logInOutViewModel
@@ -127,26 +125,11 @@ fun SignUpScreen(navRouter: Router? = null, viewModel: LogInOutViewModel = logIn
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        Row{ GoogleSignInButton(//TODO(REPLACE WITH Google sign in in VM)
+        Row{ GoogleSignInButton(
             serverClientId = GoogleSignInParams.serverClientId,
             backendUrl = GoogleSignInParams.backendUrl,
-            onResult = { success, result ->
-                if (success && result!=null) {
-                    viewModel.setUser(User(
-                        username = result.username?:"",
-                        email = result.email?:"",
-                        _id = result.user_id?:"",
-                        token = result.token?:"",
-                        avatarURL = result.google_avatar_url?:"", //default google avatar
-                        googleUserInfo = GoogleExtraUserInfo(
-                            name = result.username?:"",
-                            picture = result.google_avatar_url?:"",
-                            email_verified = result.email_verified?:false
-                        )
-                    ))
-                    viewModel.setConnected(true)
-
-                }
+            onSuccess = {
+                navRouter.navigate(Screen.AppSelectionScreen)
             }
         )
             Spacer(modifier = Modifier.width(15.dp))

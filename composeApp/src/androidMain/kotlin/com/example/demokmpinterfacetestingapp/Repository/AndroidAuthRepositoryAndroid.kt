@@ -46,7 +46,7 @@ class AndroidAuthRepositoryAndroid(val client: HttpClient) : AuthRepository {
     }
 
     override suspend fun googleSignIn(idToken: String, nonce: String?): User {
-        val response: HttpResponse = client.post("$authBaseUrl/google-signin") {
+        val response: HttpResponse = client.post("$authBaseUrl/google/verify") {
             contentType(ContentType.Application.Json)
             setBody(mapOf("id_token" to idToken, "nonce" to nonce))
         }
@@ -54,6 +54,8 @@ class AndroidAuthRepositoryAndroid(val client: HttpClient) : AuthRepository {
         if (!response.status.isSuccess()) {
             throw Exception("Failed to sign in with Google: ${response.status}")
         }
+
+       if (response.status.isSuccess()) println("SUCCESSSSSS")
 
         val parsed = Json { ignoreUnknownKeys = true }
             .decodeFromString(GoogleSignInResponse.serializer(), response.bodyAsText())

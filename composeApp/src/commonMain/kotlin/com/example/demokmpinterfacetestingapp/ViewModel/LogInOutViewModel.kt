@@ -1,19 +1,25 @@
 package com.example.demokmpinterfacetestingapp.ViewModel
 
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import com.example.demokmpinterfacetestingapp.Model.models.User
 import com.example.demokmpinterfacetestingapp.Model.models.requests.Visibility
 import com.example.demokmpinterfacetestingapp.Repository.AuthRepository
 import com.example.demokmpinterfacetestingapp.Repository.CloudFilesRepository
 import com.example.demokmpinterfacetestingapp.Repository.UserRepository
 import com.example.demokmpinterfacetestingapp.AuthTokenProvider
+import com.example.demokmpinterfacetestingapp.Model.models.GoogleExtraUserInfo
+import com.example.demokmpinterfacetestingapp.Model.models.responses.GoogleSignInResponse
 import com.example.demokmpinterfacetestingapp.ui.showToast
 import com.example.demokmpinterfacetestingapp.util.PickedImage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.io.println
 
 class LogInOutViewModel(
@@ -23,9 +29,6 @@ class LogInOutViewModel(
     private val tokenProvider: AuthTokenProvider,
     private val viewModelScope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 ) {
-
-    val signUpQuestionsList: List<String> = listOf("Hello", "Hi", "How are you?", "What is your name?", "Where are you from?")
-    val appCreationList: List<String> = listOf("What is your App Name", "What is your App Description")
 
     val signUpQuestionsAnswersMap: MutableMap<String, String> = mutableMapOf("Choose an username" to "")
 
@@ -149,6 +152,34 @@ class LogInOutViewModel(
             _connectionStatus.value = _connectionStatus.value.copy(isConnected = false, error = null)
         }
     }
+
+
+    fun googleSignIn(idToken: String, nonce: String) {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true)
+            try {
+                val receivedUser = authRepository.googleSignIn(idToken, nonce)
+                if (receivedUser != null) {
+                    //println("received user from google sign-in: $receivedUser")
+                    setUser(receivedUser)
+                    _connectionStatus.value = _connectionStatus.value.copy(isConnected = true, error = null)
+
+                }
+            } catch (e: Exception) {
+                _connectionStatus.value = _connectionStatus.value.copy(isConnected = false, error = e)
+            } finally {
+                _uiState.value = _uiState.value.copy(isLoading = false)
+            }
+        }
+    }
+
+
+    suspend fun showErrorMessage(message: String) {
+
+        showToast("ERROR: $message")
+    }
+
+
 
     fun presignAppFileUpload(fileName: String, fileType: String, appId: String) =
         viewModelScope.launch {
@@ -283,22 +314,7 @@ class LogInOutViewModel(
 
 
 
-    fun googleSignIn(idToken: String, nonce: String) {
-        viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true)
-            try {
-                val receivedUser = authRepository.googleSignIn(idToken, nonce)
-                if (receivedUser != null) {
-                    _uiState.value = _uiState.value.copy(currentUser = receivedUser)
-                    _connectionStatus.value = _connectionStatus.value.copy(isConnected = true, error = null)
-                }
-            } catch (e: Exception) {
-                _connectionStatus.value = _connectionStatus.value.copy(isConnected = false, error = e)
-            } finally {
-                _uiState.value = _uiState.value.copy(isLoading = false)
-            }
-        }
-    }
+
 
 
     fun tryAndGetUserFromToken() {
