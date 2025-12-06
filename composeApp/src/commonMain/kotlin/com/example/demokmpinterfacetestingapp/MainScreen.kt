@@ -10,7 +10,7 @@ import com.example.demokmpinterfacetestingapp.ViewModel.LogInOutViewModel
 val initial : Screen = Screen.LoginScreen
 
 @Composable
-fun MainScreen(viewModel: LogInOutViewModel) {
+fun MainScreen() {
 
     Column {
         AppRoot()

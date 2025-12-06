@@ -8,6 +8,7 @@ import com.example.demokmpinterfacetestingapp.Model.models.requests.OwnerType
 import com.example.demokmpinterfacetestingapp.Model.models.requests.R2FileCommitRequest
 import com.example.demokmpinterfacetestingapp.Model.models.requests.R2FilePresignRequest
 import com.example.demokmpinterfacetestingapp.Model.models.requests.Visibility
+import com.example.demokmpinterfacetestingapp.Model.models.responses.R2CommitResponse
 import com.example.demokmpinterfacetestingapp.Model.models.responses.R2FilePresignResponse
 
 import io.ktor.client.HttpClient
@@ -28,7 +29,7 @@ import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 
 
-class CloudFilesRepositoryAndroid(val client: HttpClient) : CloudFilesRepository {
+class CloudFilesRepositoryAndroid(val clientWithBearer: HttpClient, val cleanClient: HttpClient) : CloudFilesRepository {
 
 
     val fileBaseUrl = CustomApiParams.getBaseUrl() + "/files"
@@ -40,8 +41,8 @@ class CloudFilesRepositoryAndroid(val client: HttpClient) : CloudFilesRepository
         ext: String,
         visibility: Visibility
     ): R2FilePresignResponse {
-        val request = R2FilePresignRequest(OwnerType.APP, null, folder, file_basename, mime, ext, Visibility.PUBLIC)
-        val response: HttpResponse = client.post("$fileBaseUrl/presign") {
+        val request = R2FilePresignRequest(OwnerType.APP, null, folder, file_basename, mime, ext, Visibility.public)
+        val response: HttpResponse = clientWithBearer.post("$fileBaseUrl/presign") {
             contentType(ContentType.Application.Json)
             setBody(request)
         }
@@ -62,8 +63,8 @@ class CloudFilesRepositoryAndroid(val client: HttpClient) : CloudFilesRepository
         visibility: Visibility
     ): R2FilePresignResponse {
         val request =
-            R2FilePresignRequest(OwnerType.USER, owner_id, folder, file_basename, mime, ext, Visibility.PRIVATE)
-        val response: HttpResponse = client.post("$fileBaseUrl/presign") {
+            R2FilePresignRequest(OwnerType.USER, owner_id, folder, file_basename, mime, ext, Visibility.private)
+        val response: HttpResponse = clientWithBearer.post("$fileBaseUrl/presign") {
             contentType(ContentType.Application.Json)
             setBody(request)
         }
@@ -77,7 +78,7 @@ class CloudFilesRepositoryAndroid(val client: HttpClient) : CloudFilesRepository
 
 
     override suspend fun fetchFile(URI: String): ImageBitmap {
-        val response: HttpResponse = client.get(URI)
+        val response: HttpResponse = cleanClient.get(URI)
         if (!response.status.isSuccess()) {
             throw Exception("Failed to fetch file: ${response.status} - ${response.bodyAsText()}")
         }
@@ -90,9 +91,9 @@ class CloudFilesRepositoryAndroid(val client: HttpClient) : CloudFilesRepository
 
     override suspend fun commitAppFile(key: String, tags: List<String>, checksum: String?) {
 
-        val request = R2FileCommitRequest(OwnerType.APP, null, key, Visibility.PUBLIC, tags)
+        val request = R2FileCommitRequest(OwnerType.APP, null, key, Visibility.public, tags)
 
-        val response: HttpResponse = client.post("$fileBaseUrl/commit") {
+        val response: HttpResponse = clientWithBearer.post("$fileBaseUrl/commit") {
             contentType(ContentType.Application.Json)
             setBody(request)
         }
@@ -105,10 +106,10 @@ class CloudFilesRepositoryAndroid(val client: HttpClient) : CloudFilesRepository
     }
 
 
-    override suspend fun commitUserFile(owner_id: String, key: String, tags: List<String>, checksum: String?) {
-        val request = R2FileCommitRequest(OwnerType.USER, owner_id, key, Visibility.PRIVATE, tags)
+    override suspend fun commitUserFile(owner_id: String, key: String, tags: List<String>, checksum: String?) : R2CommitResponse {
+        val request = R2FileCommitRequest(OwnerType.USER, owner_id, key, Visibility.private, tags)
 
-        val response: HttpResponse = client.post("$fileBaseUrl/commit") {
+        val response: HttpResponse = clientWithBearer.post("$fileBaseUrl/commit") {
             contentType(ContentType.Application.Json)
             setBody(request)
         }
@@ -117,19 +118,23 @@ class CloudFilesRepositoryAndroid(val client: HttpClient) : CloudFilesRepository
             throw Exception("Failed to presign file upload: ${response.status}")
         }
 
+        return response.body()
 
     }
 
+
+    //WARNING: !!!!! AWS MAKES NECESSARY TO HAVE A CLIENT WITHOUT ANY BEARER SO CREATING A SPECIAL ONE FOR THAT PURPOSE !!!!!!
    override suspend fun uploadToR2(
         presignedUrl: String,
         fileBytes: ByteArray,
         contentType: String
     ): Boolean {
         return try {
-            val response = client.put(presignedUrl) {
+            val response = cleanClient.put(presignedUrl) {
                 setBody(fileBytes)
                 header(HttpHeaders.ContentType, contentType)
                 header(HttpHeaders.ContentLength, fileBytes.size.toString())
+                //header("x-amz-content-sha256", "UNSIGNED-PAYLOAD")
             }
             response.status.isSuccess()
         } catch (e: Exception) {
@@ -139,7 +144,7 @@ class CloudFilesRepositoryAndroid(val client: HttpClient) : CloudFilesRepository
     }
 
     override suspend fun getFilesListFromCloudDB(folder: String): List<String> {
-       client.post("$fileBaseUrl/files") {}
+       clientWithBearer.post("$fileBaseUrl/files") {}
 
         return emptyList()
     }

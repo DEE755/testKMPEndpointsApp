@@ -1,4 +1,4 @@
-package com.example.demokmpinterfacetestingapp
+package com.example.demokmpinterfacetestingapp.Screens
 
 import com.example.demokmpinterfacetestingapp.Const.GoogleSignInParams
 import com.example.demokmpinterfacetestingapp.Navigation.Router
@@ -15,6 +15,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -25,7 +26,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.example.demokmpinterfacetestingapp.ViewModel.LogInOutViewModel
-import com.example.demokmpinterfacetestingapp.components.UploadImageButton
+import com.example.demokmpinterfacetestingapp.components.PickImageButton
 import com.example.demokmpinterfacetestingapp.components.GoogleSignInButton
 
 import com.example.demokmpinterfacetestingapp.DI.ServiceLocator.logInOutViewModel
@@ -42,23 +43,20 @@ fun LoginScreen(viewModel: LogInOutViewModel=logInOutViewModel, navRouter: Route
     //val viewModel = viewModel ?: remember{ LogInOutViewModel(authRepository, userRepository) }
     val navRouter = navRouter ?: remember { Router(Screen.SignUpScreen) }
     val uiState by viewModel.uiState.collectAsState()
-    val connectionStatus by viewModel.connectionStatus.collectAsState()
+    val connectionStatus by viewModel.sessionManager.connectionStatus.collectAsState()
     val passwordVisible = remember { mutableStateOf(false) }
 
    //will launch in vm only if it has token saved from initialization
-    viewModel.tryAndGetUserFromToken()
+    LaunchedEffect(Unit) {
+        viewModel.tryAndGetUserFromToken()
+    }
 
 
 
-
-    if (connectionStatus.isConnected) {
-        if (uiState.currentUser?.username?.isEmpty() == true){
+    LaunchedEffect(connectionStatus.isConnected, uiState.currentUser?.username) {
+        if (connectionStatus.isConnected && uiState.currentUser?.username?.isNotEmpty() == true) {
             navRouter.navigate(Screen.AppSelectionScreen)
-
-            }
-
-        else
-        navRouter.navigate(Screen.AppSelectionScreen)
+        }
     }
 
 
@@ -107,7 +105,13 @@ fun LoginScreen(viewModel: LogInOutViewModel=logInOutViewModel, navRouter: Route
                  GoogleSignInButton(
                     serverClientId = GoogleSignInParams.serverClientId,
                     backendUrl = GoogleSignInParams.backendUrl,
-                    onSuccess = {navRouter.navigate(Screen.AppSelectionScreen) }
+                    onSuccess = {
+                        println("ConnectionStatus: $connectionStatus")
+                        print("ConnectionERROR ? $connectionStatus.error")
+                        if (connectionStatus.isConnected) {
+
+                        navRouter.navigate(Screen.AppSelectionScreen)
+                    } },
                 )
 
                 Spacer(modifier = Modifier.width(15.dp))
@@ -135,7 +139,7 @@ fun LoginScreen(viewModel: LogInOutViewModel=logInOutViewModel, navRouter: Route
             }
 
 
-            UploadImageButton { img ->
+            PickImageButton { img ->
                 viewModel.uploadAppImage(
                     image = img,
                     folder = "app-images",

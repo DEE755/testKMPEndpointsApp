@@ -14,7 +14,7 @@ expect fun rememberImagePicker(onPicked: (PickedImage?) -> Unit): () -> Unit
 
 
 @Composable
-fun UploadImageButton(
+fun PickImageButton(
     onImagePicked: (PickedImage) -> Unit
 ) {
     val launchPicker = rememberImagePicker { picked ->

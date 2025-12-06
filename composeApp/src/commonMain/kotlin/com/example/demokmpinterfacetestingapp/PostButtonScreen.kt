@@ -1,4 +1,4 @@
-package com.example.demokmpinterfacetestingapp.com.example.demokmpinterfacetestingapp
+package com.example.demokmpinterfacetestingapp
 
 import com.example.demokmpinterfacetestingapp.Repository.AuthRepository
 import androidx.compose.runtime.*

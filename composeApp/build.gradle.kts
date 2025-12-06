@@ -56,6 +56,8 @@ kotlin {
 
                 implementation("media.kamel:kamel-image:0.9.5")
 
+                implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
+
             }
         }
         val androidMain by getting {

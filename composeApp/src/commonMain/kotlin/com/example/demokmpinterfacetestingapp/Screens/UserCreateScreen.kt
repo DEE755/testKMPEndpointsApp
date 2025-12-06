@@ -17,7 +17,6 @@ fun UserCreateScreen(viewModel: LogInOutViewModel=logInOutViewModel, navRouter: 
     //val viewModel = viewModel ?: remember{LogInOutViewModel(authRepository, userRepository)}
     val navRouter = navRouter ?: remember { Router(Screen.LoginScreen) }
     val uiState by viewModel.uiState.collectAsState()
-
     Text("Please let us know about yourself!")
     TextField(value = uiState.currentUser?.username?: "",
         onValueChange = {viewModel.onUsernameChange(uiState.currentUser?.username?:"")},

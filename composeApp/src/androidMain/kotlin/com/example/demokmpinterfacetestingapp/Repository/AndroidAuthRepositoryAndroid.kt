@@ -13,6 +13,7 @@ import com.example.demokmpinterfacetestingapp.Model.models.requests.EmailSignUpR
 import com.example.demokmpinterfacetestingapp.Model.models.responses.CurrentUserResponse
 import com.example.demokmpinterfacetestingapp.Model.models.responses.GoogleSignInResponse
 import com.example.demokmpinterfacetestingapp.DI.ServiceLocator.tokenProvider
+import com.example.demokmpinterfacetestingapp.DI.UserPrefsDataSource
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.request.post
@@ -24,7 +25,7 @@ import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import kotlinx.serialization.json.Json
 
-class AndroidAuthRepositoryAndroid(val client: HttpClient) : AuthRepository {
+class AndroidAuthRepositoryAndroid(val client: HttpClient, val userPrefs: UserPrefsDataSource) : AuthRepository {
 
     val authBaseUrl: String = CustomApiParams.getBaseUrl() + "/auth"
 
@@ -68,10 +69,7 @@ class AndroidAuthRepositoryAndroid(val client: HttpClient) : AuthRepository {
         val emailVerified =
             parsed.email_verified ?: throw IllegalStateException("Google Sign-In response missing email_verified")
 
-        tokenProvider.saveAccessToken(token)
-        tokenProvider.hasBearerSet = true
-
-        return User(
+        val googleUser = User(
             _id = userId,
             username = username,
             email = email,
@@ -83,7 +81,10 @@ class AndroidAuthRepositoryAndroid(val client: HttpClient) : AuthRepository {
                 email_verified = emailVerified
             )
         )
+        saveAccessToken(token)
+        saveUserInPrefs(googleUser)
 
+        return googleUser
     }
 
     override suspend fun saveAccessToken(token: String?) {
@@ -160,13 +161,24 @@ class AndroidAuthRepositoryAndroid(val client: HttpClient) : AuthRepository {
             Log.e("NetworkRepositoryImpl", "Deserialization failed: ${response.bodyAsText()}", e)
             throw e
         }
-        tokenProvider.saveAccessToken(parsed.token)
-        tokenProvider.hasBearerSet = true
+
+        saveAccessToken(parsed.user.token)
+        saveUserInPrefs(parsed.user)
+
 
         Log.d("NetworkRepositoryImpl", "Email sign-up: $parsed")
 
         return parsed.user
     }
+
+
+    suspend fun saveUserInPrefs(user: User)
+    {
+        userPrefs.saveFullUserInCache(user)
+
+    }
+
+
 
 
 

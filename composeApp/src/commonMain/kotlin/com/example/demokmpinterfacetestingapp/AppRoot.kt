@@ -3,9 +3,8 @@ package app
 import com.example.demokmpinterfacetestingapp.Screens.SignInWithSMSScreen
 import com.example.demokmpinterfacetestingapp.Screens.SignUpScreen
 import com.example.demokmpinterfacetestingapp.ViewModel.LogInOutViewModel
-import com.example.demokmpinterfacetestingapp.LoginScreen
+import com.example.demokmpinterfacetestingapp.Screens.LoginScreen
 import com.example.demokmpinterfacetestingapp.Navigation.NavHost
-import com.example.demokmpinterfacetestingapp.Navigation.Router
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -16,16 +15,15 @@ import com.example.demokmpinterfacetestingapp.Screens.AppCreationScreen
 import com.example.demokmpinterfacetestingapp.Screens.AppSelectionScreen
 import com.example.demokmpinterfacetestingapp.Screens.PromptFromUserSeriesScreen
 import com.example.demokmpinterfacetestingapp.DI.ServiceLocator.authRepository
-import com.example.demokmpinterfacetestingapp.DI.ServiceLocator.userRepository
+import com.example.demokmpinterfacetestingapp.DI.ServiceLocator.userCloudRepository
 import com.example.demokmpinterfacetestingapp.DI.ServiceLocator.cloudFilesRepository
-import com.example.demokmpinterfacetestingapp.DI.ServiceLocator.tokenProvider
+import com.example.demokmpinterfacetestingapp.DI.ServiceLocator.sessionManager
+import com.example.demokmpinterfacetestingapp.DI.ServiceLocator.navRouter
 @Composable
 fun AppRoot() {
-    val navRouter = remember { Router() }
    //initilize first time objects:
     val viewModel = remember{LogInOutViewModel(
-        authRepository, userRepository, cloudFilesRepository,
-        tokenProvider = tokenProvider
+        authRepository, userCloudRepository, cloudFilesRepository, sessionManager
     )}
     val uiState by viewModel.uiState.collectAsState()
 
@@ -42,7 +40,7 @@ fun AppRoot() {
                 navRouter = navRouter
             )
         },
-        appSelectionScreen = { AppSelectionScreen(viewModel, navRouter) },
+        appSelectionScreen = { AppSelectionScreen() },
         appCreationScreen = { AppCreationScreen() },
         appBrowseScreen = { AppBrowseScreen()},
         promptFromUserSeriesScreen = { routerParam, questionsAnswerMap, functionToExecute ->

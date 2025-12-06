@@ -10,12 +10,12 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 
-class AndroidUserRepository(val client: HttpClient): UserRepository {
-
+class AndroidUserCloudDataSource(val client: HttpClient): UserCloudDataSource {
+    val userBaseUrl="/user"
 
 
     override suspend fun UpdateUsername(username: String, currentUser: User?) {
-            val userBaseUrl="/user"
+
 
         val request = UsernameUpdateRequest(currentUser?._id, currentUser?.username)
 
@@ -32,6 +32,10 @@ class AndroidUserRepository(val client: HttpClient): UserRepository {
     }
 
     override suspend fun UpdatePhoneNumber() {
+        TODO("Not yet implemented")
+    }
+
+    override fun fetchUser(): User? {
         TODO("Not yet implemented")
     }
 }

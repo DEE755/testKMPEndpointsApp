@@ -1,4 +1,4 @@
-package com.example.demokmpinterfacetestingapp
+package com.example.demokmpinterfacetestingapp.DI
 
 interface AuthTokenProvider {
 
@@ -11,4 +11,6 @@ interface AuthTokenProvider {
 
     var hasBearerSet: Boolean
 
+    suspend fun setHasBearerSet(value: Boolean)
+    suspend fun getHasBearerSet(): Boolean
 }

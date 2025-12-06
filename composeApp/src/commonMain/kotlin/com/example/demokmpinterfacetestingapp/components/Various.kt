@@ -8,9 +8,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import com.example.demokmpinterfacetestingapp.DI.ServiceLocator.wizardViewModel
-import com.example.demokmpinterfacetestingapp.ViewModel.WizardViewModel
+import com.example.demokmpinterfacetestingapp.ViewModel.AppWizardViewModel
 
-val viewModel: WizardViewModel = wizardViewModel
+val viewModel: AppWizardViewModel = wizardViewModel
 
 @Composable
 fun CheckboxWithLabel(label: String, onCheckedChange: () -> Unit = {}) {

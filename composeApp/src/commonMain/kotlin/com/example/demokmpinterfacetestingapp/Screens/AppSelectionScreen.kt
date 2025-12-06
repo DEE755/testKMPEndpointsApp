@@ -1,8 +1,5 @@
 package com.example.demokmpinterfacetestingapp.Screens
 
-import androidx.compose.foundation.Image
-import com.example.demokmpinterfacetestingapp.ViewModel.LogInOutViewModel
-import com.example.demokmpinterfacetestingapp.Navigation.Router
 import com.example.demokmpinterfacetestingapp.Navigation.Screen
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,53 +14,69 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.example.demokmpinterfacetestingapp.Model.models.recycler.ListItem
 import com.example.demokmpinterfacetestingapp.components.RecyclerScreen
 
-import com.example.demokmpinterfacetestingapp.components.UploadImageButton
 import com.example.demokmpinterfacetestingapp.ui.showToast
-import com.example.demokmpinterfacetestingapp.util.PickedImage
 
-import com.example.demokmpinterfacetestingapp.util.decodeImage
 import io.kamel.image.KamelImage
 import io.kamel.image.asyncPainterResource
 import kotlinx.coroutines.launch
-import com.example.demokmpinterfacetestingapp.DI.ServiceLocator.logInOutViewModel
+import com.example.demokmpinterfacetestingapp.DI.ServiceLocator.appSelectionViewModel
+import com.example.demokmpinterfacetestingapp.DI.ServiceLocator.navRouter
+import com.example.demokmpinterfacetestingapp.Model.models.App
+import com.example.demokmpinterfacetestingapp.ViewModel.AppSelectionViewModel
 import kotlinx.coroutines.runBlocking
+import org.jetbrains.compose.ui.tooling.preview.Preview
 
 //TODO(: change navRouter to imported by di serviceLocator)
+//TODO(: create new viewModel for this screen instead of logInOutVM, userPrefs injected inside it and new logout function there)
 
+@Preview
 @Composable
-fun AppSelectionScreen(viewModel: LogInOutViewModel = logInOutViewModel, navRouter: Router?) {
-    //val viewModel = viewModel ?: LogInOutViewModel(authRepository, userRepository, cloudFilesRepository)
-    val navRouter = navRouter ?: Router(Screen.AppSelectionScreen)
-
+fun AppSelectionScreen() {
+val viewModel: AppSelectionViewModel = appSelectionViewModel
     val uiState by viewModel.uiState.collectAsState()
-    Column(modifier = Modifier.padding(30.dp)) {
-        Text("Hello ${uiState.currentUser?.username}") //with personal info: id:${uiState.currentUser?._id}, name:${uiState.currentUser?.googleUserInfo?.family_name} ${uiState.currentUser?.googleUserInfo?.given_name}, ${uiState.currentUser?.googleUserInfo?.picture}!")
-
-
-        uiState.currentUser?.googleUserInfo?.picture?.let { imageUrl ->
-            KamelImage(
-                resource = asyncPainterResource(imageUrl),
-                contentDescription = "Profile Picture",
-                modifier = Modifier.size(180.dp).clip(CircleShape),
-                onLoading = { progress ->
-                    CircularProgressIndicator(progress = { progress })
-                },
-                onFailure = { exception ->
-                    Text("Error loading image: ${exception.message}")
-                }
-            )
+    if (uiState.isLoading) {
+        Column(modifier = Modifier.padding(100.dp)) {
+            CircularProgressIndicator()
+            Text("Loading user data...")
         }
+        return
+    }
 
+    Column(modifier = Modifier.padding(30.dp)) {
+        Spacer(Modifier.height(30.dp))
+        Text("Welcome ${uiState.currentUser?.username} !") //with personal info: id:${uiState.currentUser?._id}, name:${uiState.currentUser?.googleUserInfo?.family_name} ${uiState.currentUser?.googleUserInfo?.given_name}, ${uiState.currentUser?.googleUserInfo?.picture}!")
+
+        Spacer(Modifier.height(30.dp))
+       Row {
+           uiState.currentUser?.googleUserInfo?.picture?.let { imageUrl ->
+               KamelImage(
+                   resource = asyncPainterResource(imageUrl),
+                   contentDescription = "Profile Picture",
+                   modifier = Modifier.size(140.dp).clip(CircleShape),
+                   onLoading = { progress ->
+                       CircularProgressIndicator(progress = { progress })
+                   },
+                   onFailure = { exception ->
+                       Text("Error loading image: ${exception.message}")
+                   }
+               )
+           }
+           Spacer(modifier = Modifier.size(60.dp))
+           Button(onClick = {
+               runBlocking { viewModel.logout() } //need to ensure logout is complete before navigating
+               navRouter.navigate(Screen.LoginScreen)
+           }) {
+               Text("Log out")
+           }
+
+       }
         Row {
             Button(onClick = { navRouter.navigate(Screen.AppBrowseScreen) }) {
                 Text("Browse Existing App")
@@ -73,56 +86,23 @@ fun AppSelectionScreen(viewModel: LogInOutViewModel = logInOutViewModel, navRout
                 Text("Create a new App")
             }
         }
-    }
-    var selected by remember { mutableStateOf<PickedImage?>(null) }
-
-    Row {
-        Column(Modifier.padding(16.dp)) {
-            UploadImageButton { img -> selected = img }
 
 
-            Spacer(Modifier.height(12.dp))
-            if (selected != null) {
-                val bmp = remember(selected) { decodeImage(selected!!.bytes) }
-                Image(bitmap = bmp, contentDescription = "Selected image", modifier = Modifier.size(120.dp))
-                Text("Nom: ${selected!!.name ?: "-"}")
-                Text("MIME: ${selected!!.mimeType ?: "-"}")
-                Text("Taille: ${selected!!.bytes.size} octets")
-            }
+        //TODO(ADD A PROPER RECYCLER VIEW FOR THE APPS LIST WITH CORRECT IMAGES AND ALL THE DATA + onCLICK HANDLER TO OPEN THE APP)
+        val appItemList: MutableList<ListItem> = mutableListOf()
+
+        val appList: List<App> = uiState.userApps
+
+        for (i in appList.indices) {
+            appList[i].appIconURL = "https://picsum.photos/200/200?random=$i"
+            val appItem = ListItem(id = appList[i]._id, title = appList[i].name, thumbnailUrl = appList[i].appIconURL)
+            appItemList.add(appItem)
         }
 
-        Button(
-            onClick = {
-                selected?.let { image ->
-                    viewModel.uploadUserImage(
-                        image = image,
-                        folder = "app-images",
-                        fileBasename = "app-logo"
-                    )
-                }
-            },
-            enabled = selected != null
-        ) {
-            Text("Upload to server")
-        }
-    }
+        Text("My Apps : (${appItemList.size})")
+        val coroutineScope = rememberCoroutineScope()
 
-    Button(onClick = {
-        runBlocking {viewModel.logout()} //need to ensure logout is complete before navigating
-        navRouter.navigate(Screen.LoginScreen) }) {
-        Text("Log out")
-    }
-
-        val testList: MutableList<ListItem> = mutableListOf()
-
-        for (i in 0..50) {
-            val temp=ListItem(id = "$i", title = "Item number $i", thumbnailUrl = "https://via.placeholder.com/150")
-            testList.add(temp)
-        }
-
-    val coroutineScope = rememberCoroutineScope()
-
-        RecyclerScreen(testList, Modifier.padding(16.dp)) { item ->
+        RecyclerScreen(appItemList, Modifier.padding(16.dp)) { item ->
             println("Clicked on item: ${item.id} - ${item.title}")
             coroutineScope.launch {
                 showToast("Clicked on item: ${item.id} - ${item.title}")
@@ -130,4 +110,7 @@ fun AppSelectionScreen(viewModel: LogInOutViewModel = logInOutViewModel, navRout
         }
 
 
+
+
+    }
 }

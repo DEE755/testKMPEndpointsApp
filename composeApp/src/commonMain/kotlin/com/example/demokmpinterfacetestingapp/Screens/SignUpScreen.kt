@@ -34,7 +34,7 @@ import kotlinx.coroutines.runBlocking
 fun SignUpScreen(navRouter: Router? = null, viewModel: LogInOutViewModel = logInOutViewModel) {
     val navRouter = navRouter ?: remember { Router(Screen.LoginScreen) }
     val uiState by viewModel.uiState.collectAsState()
-    val connectionStatus by viewModel.connectionStatus.collectAsState()
+    val connectionStatus by viewModel.sessionManager.connectionStatus.collectAsState()
     val passwordVisible = remember { mutableStateOf(false) }
 
     lateinit var userInfo: GoogleSignInResponse
@@ -92,7 +92,7 @@ fun SignUpScreen(navRouter: Router? = null, viewModel: LogInOutViewModel = logIn
                                     viewModel.emailSignUp()
 
                                 }
-                                if (viewModel.connectionStatus.value.isConnected) {
+                                if (connectionStatus.isConnected) {
                                     navRouter.navigate(
                                         Screen.AppSelectionScreen
                                     )
@@ -128,8 +128,9 @@ fun SignUpScreen(navRouter: Router? = null, viewModel: LogInOutViewModel = logIn
         Row{ GoogleSignInButton(
             serverClientId = GoogleSignInParams.serverClientId,
             backendUrl = GoogleSignInParams.backendUrl,
-            onSuccess = {
+            onSuccess = { if (connectionStatus.isConnected) {
                 navRouter.navigate(Screen.AppSelectionScreen)
+            }
             }
         )
             Spacer(modifier = Modifier.width(15.dp))

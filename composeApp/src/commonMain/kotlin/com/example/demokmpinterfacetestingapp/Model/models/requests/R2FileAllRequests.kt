@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 enum class OwnerType { USER, APP }
 
 @Serializable
-enum class Visibility { PUBLIC, PRIVATE }
+enum class Visibility { public, private }
 
 
 
@@ -18,7 +18,7 @@ data class R2FilePresignRequest(
     val file_basename: String? = null, // optional fixed name, else backend generates
     val mime: String,                // e.g. "image/webp", "application/pdf"
     val ext: String,                 // e.g. "webp", "pdf"
-    val visibility: Visibility = Visibility.PUBLIC
+    val visibility: Visibility = Visibility.public
 )
 
 

@@ -9,6 +9,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.demokmpinterfacetestingapp.DI.ServiceLocator.logInOutViewModel
+import com.example.demokmpinterfacetestingapp.DI.ServiceLocator.navRouter
 import com.example.demokmpinterfacetestingapp.DI.initAppContext
 
 
@@ -22,7 +23,7 @@ class MainActivity : ComponentActivity() {
         initAppContext(context = this)
 
         setContent {
-            MainScreen(logInOutViewModel)
+            MainScreen()
         }
     }
 }
@@ -30,5 +31,5 @@ class MainActivity : ComponentActivity() {
 @Preview
 @Composable
 fun AppAndroidPreview() {
-    MainScreen(logInOutViewModel)
+    MainScreen()
 }

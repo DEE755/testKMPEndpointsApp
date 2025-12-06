@@ -17,9 +17,7 @@ import com.google.android.gms.common.api.ApiException
 import kotlinx.coroutines.launch
 import java.util.UUID
 import com.example.demokmpinterfacetestingapp.DI.ServiceLocator.logInOutViewModel
-
-
-
+import kotlinx.coroutines.runBlocking
 
 
 @Composable
@@ -50,9 +48,11 @@ actual fun GoogleSignInButton(
 
                 val nonce = UUID.randomUUID().toString()
 
-                logInOutViewModel.googleSignIn(idToken, nonce)
-                onSuccess.invoke()
+                runBlocking {
+                    logInOutViewModel.googleSignIn(idToken, nonce)
+                    onSuccess.invoke()
 
+                }
 
 
             } catch (e: ApiException) {

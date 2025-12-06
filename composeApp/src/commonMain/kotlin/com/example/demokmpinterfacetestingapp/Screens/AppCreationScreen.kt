@@ -24,19 +24,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.example.demokmpinterfacetestingapp.ViewModel.WizardViewModel
 import com.example.demokmpinterfacetestingapp.components.ColorSelector
 import com.example.demokmpinterfacetestingapp.DI.ServiceLocator.wizardViewModel
+import com.example.demokmpinterfacetestingapp.DI.ServiceLocator.navRouter
 import com.example.demokmpinterfacetestingapp.Model.models.Module.Module
+import com.example.demokmpinterfacetestingapp.Navigation.Screen
+import com.example.demokmpinterfacetestingapp.ViewModel.AppWizardViewModel
 import com.example.demokmpinterfacetestingapp.components.CheckboxWithLabel
-import com.example.demokmpinterfacetestingapp.components.UploadImageButton
-import com.example.demokmpinterfacetestingapp.util.PickedImage
+import com.example.demokmpinterfacetestingapp.components.PickImageButton
 import com.example.demokmpinterfacetestingapp.util.decodeImage
 
-val viewModel: WizardViewModel = wizardViewModel
+val viewModel: AppWizardViewModel = wizardViewModel
 @Composable
 fun AppCreationScreen() {
-
     val uiState by viewModel.uiState.collectAsState()
 
     val pages = listOf<@Composable () -> Unit>(
@@ -49,7 +49,12 @@ fun AppCreationScreen() {
 
     )
 
-    WizardScreen(pages = pages)
+    WizardScreen(pages = pages,
+        onFinish = {
+            viewModel.sendDataToServer()
+            navRouter.navigate(Screen.AppSelectionScreen)
+        }
+        )
 
     //Send to the server the info to create the app
     //recreate loacally the app & store it in local db
@@ -110,19 +115,19 @@ fun ChooseColor() {
 
 @Composable
 fun chooseAppImage() {
+    val uiState = viewModel.uiState.collectAsState()
     viewModel.enableNext(true)
-    var selected by remember { mutableStateOf<PickedImage?>(null) }
     Column(Modifier.padding(16.dp)) {
     Text("Choose an App Image (optional)")
 
+        PickImageButton { image -> viewModel.setPickedImage(image) }
 
-        UploadImageButton { img -> selected = img }
 
 
         Spacer(Modifier.height(12.dp))
-        selected?.let { image ->
+       uiState.value.pickedImage?.let { image ->
+           //convert to bitmap and display
             val bmp = remember(image) { decodeImage(image.bytes) }
-            viewModel.setPickedImage(image.bytes)
             Image(bitmap = bmp, contentDescription = "Selected image", modifier = Modifier.size(120.dp))
             Text("Selected Image for app ${viewModel.uiState.value.appName}")
 

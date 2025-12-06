@@ -17,7 +17,8 @@ data class R2FilePresignResponse(
 )
 
 @Serializable
-data class CommitResponse(
+data class R2CommitResponse(
     val ok: Boolean,
-    val key: String
+    val key: String,
+    val file_id: String
 )

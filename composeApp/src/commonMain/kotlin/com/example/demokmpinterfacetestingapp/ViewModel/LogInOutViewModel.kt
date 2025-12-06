@@ -1,35 +1,32 @@
 package com.example.demokmpinterfacetestingapp.ViewModel
 
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import com.example.demokmpinterfacetestingapp.Model.models.User
 import com.example.demokmpinterfacetestingapp.Model.models.requests.Visibility
 import com.example.demokmpinterfacetestingapp.Repository.AuthRepository
 import com.example.demokmpinterfacetestingapp.Repository.CloudFilesRepository
-import com.example.demokmpinterfacetestingapp.Repository.UserRepository
-import com.example.demokmpinterfacetestingapp.AuthTokenProvider
-import com.example.demokmpinterfacetestingapp.Model.models.GoogleExtraUserInfo
-import com.example.demokmpinterfacetestingapp.Model.models.responses.GoogleSignInResponse
+import com.example.demokmpinterfacetestingapp.Repository.UserCloudDataSource
+import com.example.demokmpinterfacetestingapp.SessionManager
 import com.example.demokmpinterfacetestingapp.ui.showToast
 import com.example.demokmpinterfacetestingapp.util.PickedImage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlin.io.println
 
 class LogInOutViewModel(
     val authRepository : AuthRepository,
-    val userRepository: UserRepository,
+    val userRepository: UserCloudDataSource,
     val cloudFilesRepository: CloudFilesRepository? = null,
-    private val tokenProvider: AuthTokenProvider,
-    private val viewModelScope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-) {
+    val sessionManager: SessionManager
 
+    ) {
+
+    private val viewModelScope by lazy {
+        CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    }
     val signUpQuestionsAnswersMap: MutableMap<String, String> = mutableMapOf("Choose an username" to "")
 
     data class LoginUiState(
@@ -44,16 +41,11 @@ class LogInOutViewModel(
         val temporaryUsername: String = ""
     )
 
-    data class ConnectionStatus(
-        val isConnected: Boolean = false,
-        val error: Exception? = null
-    )
+
 
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState: StateFlow<LoginUiState> = _uiState
 
-    private val _connectionStatus = MutableStateFlow(ConnectionStatus())
-    val connectionStatus: StateFlow<ConnectionStatus> = _connectionStatus
 
     fun onEmailChange(newEmail: String) {
         _uiState.value = _uiState.value.copy(email = newEmail)
@@ -103,10 +95,10 @@ class LogInOutViewModel(
                     _uiState.value = _uiState.value.copy(currentUser = receivedUser)
                 }
                 _uiState.value = _uiState.value.copy(isLoading = false)
-                _connectionStatus.value = _connectionStatus.value.copy(isConnected = true, error = null)
+                sessionManager.setConnected(true)
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(isLoading = false)
-                _connectionStatus.value = _connectionStatus.value.copy(isConnected = false, error = e)
+                sessionManager.setConnected(false)
             }
         }
     }
@@ -132,24 +124,22 @@ class LogInOutViewModel(
 
             if (createdUser != null) {
                 _uiState.value = _uiState.value.copy(currentUser = createdUser)
-                _connectionStatus.value = _connectionStatus.value.copy(isConnected = true, error = null)
+               sessionManager.setConnected(true)
             }
             _uiState.value = _uiState.value.copy(isLoading = false)
 
         } catch (e: Exception) {
             _uiState.value = _uiState.value.copy(isLoading = false)
-            _connectionStatus.value = _connectionStatus.value.copy(isConnected = false, error = e)
+            sessionManager.setConnected(false)
         }
     }
 
-    fun setConnected(connected: Boolean) {
-        _connectionStatus.value = _connectionStatus.value.copy(isConnected = connected)
-    }
+
 
     fun signOut() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(currentUser = null, password = "")
-            _connectionStatus.value = _connectionStatus.value.copy(isConnected = false, error = null)
+            sessionManager.logout()
         }
     }
 
@@ -160,13 +150,15 @@ class LogInOutViewModel(
             try {
                 val receivedUser = authRepository.googleSignIn(idToken, nonce)
                 if (receivedUser != null) {
-                    //println("received user from google sign-in: $receivedUser")
                     setUser(receivedUser)
-                    _connectionStatus.value = _connectionStatus.value.copy(isConnected = true, error = null)
+
+                    sessionManager.setConnected(true)
 
                 }
             } catch (e: Exception) {
-                _connectionStatus.value = _connectionStatus.value.copy(isConnected = false, error = e)
+                sessionManager.setConnected(false)
+                showErrorMessage(e.message ?: "")
+
             } finally {
                 _uiState.value = _uiState.value.copy(isLoading = false)
             }
@@ -191,7 +183,7 @@ class LogInOutViewModel(
                     ext = fileType.substringAfterLast("/")
                 )
             } catch (e: Exception) {
-                _connectionStatus.value = _connectionStatus.value.copy(error = e)
+                showErrorMessage(e.message ?: "")
             }
         }
 
@@ -206,7 +198,7 @@ class LogInOutViewModel(
                     ext = fileType.substringAfterLast("/")
                 )
             } catch (e: Exception) {
-                _connectionStatus.value = _connectionStatus.value.copy(error = e)
+                showErrorMessage(e.message ?: "")
             }
         }
 
@@ -215,7 +207,7 @@ class LogInOutViewModel(
             try {
                 cloudFilesRepository?.commitAppFile(key, tags, checksum)
             } catch (e: Exception) {
-                _connectionStatus.value = _connectionStatus.value.copy(error = e)
+                showErrorMessage(e.message ?: "")
             }
         }
 
@@ -231,7 +223,7 @@ class LogInOutViewModel(
                     file_basename = fileBasename,
                     mime = image.mimeType ?: "image/jpeg",
                     ext = image.name?.substringAfterLast('.') ?: "jpg",
-                    visibility = Visibility.PUBLIC
+                    visibility = Visibility.public
                 )
 
                 if (presignResponse == null) {
@@ -269,7 +261,7 @@ class LogInOutViewModel(
                     file_basename = fileBasename,
                     mime = image.mimeType ?: "image/jpeg",
                     ext = image.name?.substringAfterLast('.') ?: "jpg",
-                    visibility = Visibility.PUBLIC
+                    visibility = Visibility.public
                 )
 
                 if (presignResponse == null) {
@@ -302,29 +294,20 @@ class LogInOutViewModel(
         try {
             cloudFilesRepository?.getFilesListFromCloudDB(folder)
         } catch (e: Exception) {
-            _connectionStatus.value = _connectionStatus.value.copy(error = e)
+            showErrorMessage(e.message ?: "")
         }
     }
-
-    fun saveAccessToken(token: String) { //replace by saving access token already when receiving response without calling back from viewmodel
-        viewModelScope.launch {
-           authRepository.saveAccessToken(token)
-        }
-    }
-
-
-
 
 
 
     fun tryAndGetUserFromToken() {
-        if (!tokenProvider.hasBearerSet) return
+        if (!sessionManager.getBearerSetStatus()) return
         viewModelScope.launch {
             try {
                 val fetchedUser: User? = authRepository.getCurrentUser()
                 fetchedUser?.let {
                     setUser(it)
-                    setConnected(true)
+                    sessionManager.setConnected(true)
                 }
             } catch (e: Exception) {
                 println("failed to get user from token: ${e.message}")
@@ -333,9 +316,7 @@ class LogInOutViewModel(
     }
 
     suspend fun logout() {
-        tokenProvider.clearAccessToken()
-        tokenProvider.hasBearerSet = false
+        sessionManager.logout()
         setUser(null)
-        setConnected(false)
     }
 }
