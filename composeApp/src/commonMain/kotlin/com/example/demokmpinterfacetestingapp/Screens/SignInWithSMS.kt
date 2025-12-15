@@ -1,6 +1,6 @@
 package com.example.demokmpinterfacetestingapp.Screens
 
-import com.example.demokmpinterfacetestingapp.ViewModel.LogInOutViewModel
+import com.example.demokmpinterfacetestingapp.ViewModel.AuthViewModel
 import com.example.demokmpinterfacetestingapp.Navigation.Router
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -15,11 +15,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
-import com.example.demokmpinterfacetestingapp.DI.ServiceLocator.logInOutViewModel
+import com.example.demokmpinterfacetestingapp.DI.ServiceLocator.authViewModel
 
 
 @Composable
-fun SignInWithSMSScreen(viewModel: LogInOutViewModel = logInOutViewModel, navRouter: Router? = null) {
+fun SignInWithSMSScreen(viewModel: AuthViewModel = authViewModel, navRouter: Router? = null) {
     val uiState by viewModel.uiState.collectAsState()
     //val viewModel = viewModel ?: remember{LogInOutViewModel(authRepository, userRepository)}
 

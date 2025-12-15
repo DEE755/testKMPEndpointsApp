@@ -1,6 +1,6 @@
 package com.example.demokmpinterfacetestingapp.Screens
 
-import com.example.demokmpinterfacetestingapp.ViewModel.LogInOutViewModel
+import com.example.demokmpinterfacetestingapp.ViewModel.AuthViewModel
 import com.example.demokmpinterfacetestingapp.Navigation.Router
 import com.example.demokmpinterfacetestingapp.Navigation.Screen
 import androidx.compose.foundation.layout.Column
@@ -24,14 +24,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import com.example.demokmpinterfacetestingapp.Const.GoogleSignInParams
 import com.example.demokmpinterfacetestingapp.Model.models.responses.GoogleSignInResponse
-import com.example.demokmpinterfacetestingapp.components.GoogleSignInButton
-import com.example.demokmpinterfacetestingapp.DI.ServiceLocator.logInOutViewModel
+import com.example.demokmpinterfacetestingapp.DI.ServiceLocator.authViewModel
+import com.example.demokmpinterfacetestingapp.components.ContainerGoogleSignInButton
 import kotlinx.coroutines.runBlocking
 
 @Composable
-fun SignUpScreen(navRouter: Router? = null, viewModel: LogInOutViewModel = logInOutViewModel) {
+fun SignUpScreen(navRouter: Router? = null, viewModel: AuthViewModel = authViewModel) {
     val navRouter = navRouter ?: remember { Router(Screen.LoginScreen) }
     val uiState by viewModel.uiState.collectAsState()
     val connectionStatus by viewModel.sessionManager.connectionStatus.collectAsState()
@@ -125,10 +124,8 @@ fun SignUpScreen(navRouter: Router? = null, viewModel: LogInOutViewModel = logIn
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        Row{ GoogleSignInButton(
-            serverClientId = GoogleSignInParams.serverClientId,
-            backendUrl = GoogleSignInParams.backendUrl,
-            onSuccess = { if (connectionStatus.isConnected) {
+        Row{ ContainerGoogleSignInButton(
+            { if (connectionStatus.isConnected) {
                 navRouter.navigate(Screen.AppSelectionScreen)
             }
             }

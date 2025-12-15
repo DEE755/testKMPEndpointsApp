@@ -1,3 +1,4 @@
+/*
 package com.example.demokmpinterfacetestingapp
 
 import androidx.compose.ui.window.Window
@@ -10,4 +11,4 @@ fun main() = application {
     ) {
         MainScreen(AuthRepositoryImpl())
     }
-}
+}*/

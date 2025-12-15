@@ -1,7 +1,19 @@
 package com.example.demokmpinterfacetestingapp.components
 
 import androidx.compose.runtime.Composable
+import com.example.demokmpinterfacetestingapp.Const.GoogleSignInParams
+import com.example.demokmpinterfacetestingapp.Navigation.Screen
 
+
+@Composable
+
+fun ContainerGoogleSignInButton( onSuccess: () -> Unit) {
+    GoogleSignInButton(
+        serverClientId = GoogleSignInParams.serverClientId,
+        backendUrl = GoogleSignInParams.backendUrl,
+        onSuccess = { onSuccess() }
+    )
+}
 
 @Composable
 expect fun GoogleSignInButton(

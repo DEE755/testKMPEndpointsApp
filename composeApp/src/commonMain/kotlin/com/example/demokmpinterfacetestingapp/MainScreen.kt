@@ -2,18 +2,28 @@ package com.example.demokmpinterfacetestingapp
 
 import com.example.demokmpinterfacetestingapp.Navigation.Screen
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+
 import app.AppRoot
-import com.example.demokmpinterfacetestingapp.ViewModel.LogInOutViewModel
+import com.example.demokmpinterfacetestingapp.components.GeneralDrawerScreen
 
-
-val initial : Screen = Screen.LoginScreen
 
 @Composable
 fun MainScreen() {
 
     Column {
-        AppRoot()
+
+        GeneralDrawerScreen(
+            {
+                Column {
+                Spacer(Modifier.height(30.dp))
+                AppRoot() }
+            }
+        )
     }
 
 }

@@ -6,11 +6,12 @@ import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.Composable
-
+import com.example.demokmpinterfacetestingapp.DI.ServiceLocator.wizardViewModel
 
 
 @Composable
 fun WizardScreen(pages : List<@Composable () -> Unit> = emptyList(), onFinish : ()->Unit) {
+    val viewModel = wizardViewModel
     val uiState by viewModel.uiState.collectAsState()
 
     var page by remember { mutableStateOf(0) }

@@ -20,4 +20,6 @@ interface UserPrefsDataSource {
     suspend fun saveUserEmail(email: String?)
     suspend fun getUserEmail(): String?
     suspend fun clearAllPrefs()
+    suspend fun saveFullGoogleUserInCache(user: User)
+    suspend fun getCachedGoogleUser(): User?
 }

@@ -44,6 +44,22 @@ class AndroidUserPrefsDataSource(private val context:Context) : UserPrefsDataSou
         userPrefs.edit { putString("current_user", jsonUser)}
     }
 
+    override suspend fun saveFullGoogleUserInCache(user: User) {
+        val jsonUser = Json.encodeToString(user)
+        userPrefs.edit { putString("current_google_user", jsonUser)}
+    }
+
+    override suspend fun getCachedGoogleUser(): User? {
+        val jsonUser = userPrefs.getString("current_google_user", null)
+
+        return try {
+            Json.decodeFromString<User>(jsonUser!!)
+        } catch (e: Exception) {
+            null
+        }
+
+    }
+
     override suspend fun getCachedUser() : User? {
         val jsonUser = userPrefs.getString("current_user", null)
 

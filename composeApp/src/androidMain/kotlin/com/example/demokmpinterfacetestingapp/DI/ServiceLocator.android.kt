@@ -10,10 +10,11 @@ import com.example.demokmpinterfacetestingapp.Repository.AndroidUserCloudDataSou
 import com.example.demokmpinterfacetestingapp.Repository.CloudFilesRepository
 import com.example.demokmpinterfacetestingapp.Repository.CloudFilesRepositoryAndroid
 import com.example.demokmpinterfacetestingapp.Repository.UserCloudDataSource
-import com.example.demokmpinterfacetestingapp.Repository.AppRepository
-import com.example.demokmpinterfacetestingapp.Repository.AndroidAppRepository
+import com.example.demokmpinterfacetestingapp.Repository.AppRemoteDataSource
+import com.example.demokmpinterfacetestingapp.Repository.AndroidAppRemoteDataSource
 import com.example.demokmpinterfacetestingapp.Repository.AndroidLocalUserDataSource
 import com.example.demokmpinterfacetestingapp.Repository.UserLocalDataSource
+//import com.example.demokmpinterfacetestingapp.Repository.UserLocalDataSource
 import com.example.demokmpinterfacetestingapp.util.AuthTokenProviderAndroid
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngineFactory
@@ -31,8 +32,8 @@ actual fun provideAuthRepository(client: HttpClient): AuthRepository =
 actual fun provideUserRepository(client: HttpClient, userPrefs1: UserPrefsDataSource): UserCloudDataSource =
     AndroidUserCloudDataSource(client)
 
-actual fun provideAppRepository(client: HttpClient) : AppRepository =
-    AndroidAppRepository(client)
+actual fun provideAppRemoteDataSource(client: HttpClient): AppRemoteDataSource =
+    AndroidAppRemoteDataSource(client)
 
 
 

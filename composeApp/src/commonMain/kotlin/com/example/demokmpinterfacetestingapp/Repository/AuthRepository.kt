@@ -13,7 +13,7 @@ interface AuthRepository {
     suspend fun emailSignUp(email: String, password : String, username: String) : User?
 
 
-    suspend fun getCurrentUser(): User?
+    suspend fun getCurrentUserFromCloud(): User?
 
     suspend fun googleSignIn(idToken: String, nonce: String?): User?
 

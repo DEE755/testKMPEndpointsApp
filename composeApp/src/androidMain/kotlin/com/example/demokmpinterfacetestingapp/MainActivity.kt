@@ -1,15 +1,12 @@
 
 package com.example.demokmpinterfacetestingapp
 
-import com.example.demokmpinterfacetestingapp.ViewModel.LogInOutViewModel
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.demokmpinterfacetestingapp.DI.ServiceLocator.logInOutViewModel
-import com.example.demokmpinterfacetestingapp.DI.ServiceLocator.navRouter
 import com.example.demokmpinterfacetestingapp.DI.initAppContext
 
 

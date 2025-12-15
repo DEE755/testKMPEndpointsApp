@@ -32,9 +32,10 @@ import com.example.demokmpinterfacetestingapp.Navigation.Screen
 import com.example.demokmpinterfacetestingapp.ViewModel.AppWizardViewModel
 import com.example.demokmpinterfacetestingapp.components.CheckboxWithLabel
 import com.example.demokmpinterfacetestingapp.components.PickImageButton
+import com.example.demokmpinterfacetestingapp.ui.showToast
 import com.example.demokmpinterfacetestingapp.util.decodeImage
 
-val viewModel: AppWizardViewModel = wizardViewModel
+private val viewModel: AppWizardViewModel = wizardViewModel
 @Composable
 fun AppCreationScreen() {
     val uiState by viewModel.uiState.collectAsState()
@@ -53,6 +54,7 @@ fun AppCreationScreen() {
         onFinish = {
             viewModel.sendDataToServer()
             navRouter.navigate(Screen.AppSelectionScreen)
+
         }
         )
 

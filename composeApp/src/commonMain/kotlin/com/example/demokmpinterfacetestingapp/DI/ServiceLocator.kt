@@ -1,13 +1,14 @@
 
 package com.example.demokmpinterfacetestingapp.DI
 
-import androidx.compose.ui.graphics.CloseSegment
 import com.example.demokmpinterfacetestingapp.Repository.AuthRepository
 import com.example.demokmpinterfacetestingapp.Repository.CloudFilesRepository
 import com.example.demokmpinterfacetestingapp.Repository.UserCloudDataSource
-import com.example.demokmpinterfacetestingapp.ViewModel.LogInOutViewModel
+import com.example.demokmpinterfacetestingapp.ViewModel.AuthViewModel
 import com.example.demokmpinterfacetestingapp.Navigation.Router
+import com.example.demokmpinterfacetestingapp.Repository.AppRemoteDataSource
 import com.example.demokmpinterfacetestingapp.Repository.AppRepository
+import com.example.demokmpinterfacetestingapp.Repository.CommonAppRepository
 import com.example.demokmpinterfacetestingapp.Repository.GlobalUserRepository
 import com.example.demokmpinterfacetestingapp.Repository.UserLocalDataSource
 import com.example.demokmpinterfacetestingapp.ViewModel.AppSelectionViewModel
@@ -32,7 +33,8 @@ expect fun provideAuthRepository(client: HttpClient): AuthRepository
 
 expect fun provideUserRepository(client: HttpClient, userPrefs1: UserPrefsDataSource): UserCloudDataSource
 
-expect fun provideAppRepository(client: HttpClient): AppRepository
+expect fun provideAppRemoteDataSource(client: HttpClient): AppRemoteDataSource
+
 
 
 expect fun provideCloudFilesRepository(clientWithBearer : HttpClient, cleanClient : HttpClient): CloudFilesRepository
@@ -53,17 +55,25 @@ object ServiceLocator {
     //Global Repositories
 
 
+    fun provideAppRepository(): AppRepository {
+        return CommonAppRepository(
+           appRemoteDataSource,
+        )
+    }
+
     fun provideSessionManager(): SessionManager {
         return SessionManager(
             tokenProvider = tokenProvider,
-            authRepository = authRepository
+            authRepository = authRepository,
+            userPrefsDataSource = userPrefs
         )
     }
     fun provideGlobalUserRepository(): GlobalUserRepository {
         return GlobalUserRepository(
             cloud = userCloudRepository,
             local = localUserDataSource,
-            appRepository = appRepository
+            appRepository = appRemoteDataSource,
+            userPrefs = userPrefs
 
         )
     }
@@ -71,8 +81,8 @@ object ServiceLocator {
 
 
 //viewModels
-    fun provideLogInOutViewModel(): LogInOutViewModel {
-        return LogInOutViewModel(
+    fun provideAuthViewModel(): AuthViewModel {
+        return AuthViewModel(
             authRepository = authRepository,
             userRepository = userCloudRepository,
             sessionManager = sessionManager,
@@ -81,7 +91,7 @@ object ServiceLocator {
 
     fun provideAppSelectionViewModel(): AppSelectionViewModel {
         return AppSelectionViewModel(
-            userGlobalRepository, sessionManager
+            userGlobalRepository, appRepository,sessionManager
         )
     }
 
@@ -165,9 +175,14 @@ object ServiceLocator {
         provideGlobalUserRepository()
     }
 
-    val appRepository : AppRepository by lazy {
-        provideAppRepository(httpClient)
+    val appRemoteDataSource : AppRemoteDataSource by lazy {
+        provideAppRemoteDataSource(httpClient)
     }
+
+    val appRepository: AppRepository by lazy {
+        provideAppRepository()
+    }
+
 
     val cloudFilesRepository by lazy {
         provideCloudFilesRepository(httpClient, cleanHttpClient)
@@ -189,8 +204,8 @@ object ServiceLocator {
     }
 
 
-    val logInOutViewModel: LogInOutViewModel by lazy {
-        provideLogInOutViewModel()
+    val authViewModel: AuthViewModel by lazy {
+        provideAuthViewModel()
     }
 
 

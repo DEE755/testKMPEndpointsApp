@@ -1,6 +1,6 @@
 package com.example.demokmpinterfacetestingapp.Screens
 
-import com.example.demokmpinterfacetestingapp.Const.GoogleSignInParams
+//import com.example.demokmpinterfacetestingapp.Const.GoogleSignInParams
 import com.example.demokmpinterfacetestingapp.Navigation.Router
 import com.example.demokmpinterfacetestingapp.Navigation.Screen
 import androidx.compose.foundation.layout.Column
@@ -25,11 +25,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import com.example.demokmpinterfacetestingapp.ViewModel.LogInOutViewModel
+import com.example.demokmpinterfacetestingapp.Const.GoogleSignInParams
+import com.example.demokmpinterfacetestingapp.ViewModel.AuthViewModel
 import com.example.demokmpinterfacetestingapp.components.PickImageButton
 import com.example.demokmpinterfacetestingapp.components.GoogleSignInButton
 
-import com.example.demokmpinterfacetestingapp.DI.ServiceLocator.logInOutViewModel
+import com.example.demokmpinterfacetestingapp.DI.ServiceLocator.authViewModel
 
 
 
@@ -39,7 +40,7 @@ import com.example.demokmpinterfacetestingapp.DI.ServiceLocator.logInOutViewMode
 var result = ""
 
 @Composable
-fun LoginScreen(viewModel: LogInOutViewModel=logInOutViewModel, navRouter: Router? = null) {
+fun LoginScreen(viewModel: AuthViewModel=authViewModel, navRouter: Router? = null) {
     //val viewModel = viewModel ?: remember{ LogInOutViewModel(authRepository, userRepository) }
     val navRouter = navRouter ?: remember { Router(Screen.SignUpScreen) }
     val uiState by viewModel.uiState.collectAsState()
@@ -139,13 +140,13 @@ fun LoginScreen(viewModel: LogInOutViewModel=logInOutViewModel, navRouter: Route
             }
 
 
-            PickImageButton { img ->
+            /*PickImageButton { img ->
                 viewModel.uploadAppImage(
                     image = img,
                     folder = "app-images",
                     fileBasename = "app-logo"
                 )
-            }
+            }*/
 
         }
     }

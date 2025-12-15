@@ -17,8 +17,33 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 
-class AndroidAppRepository(val client : HttpClient) : AppRepository {
+class AndroidAppRemoteDataSource(val client : HttpClient) : AppRemoteDataSource {
+
+
     private val appBaseUrl= CustomApiParams.getBaseUrl() + "/apps"
+
+    override suspend fun createAppRemote(
+        name: String,
+        modules: List<Module.Module>,
+        colorHex: String,
+        appLogoKey: String?,
+        banner: String?
+    ): String {
+        val request = mapOf(
+            "name" to name,
+            "modules" to modules,
+            "color" to colorHex,
+            "appLogoKey" to appLogoKey,
+            "banner" to banner
+        )
+        val response: HttpResponse = client.post("$appBaseUrl/create") {
+            contentType(ContentType.Application.Json)
+            setBody(request)
+        }
+        if (!response.status.isSuccess()) throw Exception("Failed to create")
+        val body = response.body<Map<String, Any>>()
+        return body["appId"].toString()
+    }
 
         override suspend fun createApp(
             name: String,

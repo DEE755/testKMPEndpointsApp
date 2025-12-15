@@ -1,3 +1,4 @@
+/*
 package com.example.demokmpinterfacetestingapp
 
 import com.example.demokmpinterfacetestingapp.Repository.AuthRepository
@@ -40,3 +41,4 @@ class AuthRepositoryImpl : AuthRepository {
         return response.bodyAsText()
     }
 }
+*/

@@ -36,7 +36,7 @@ data class WizardUiState(
     var selectedColor: Color= Color.White,
     val toggledList: List<Module> = emptyList(),
     val pickedImage: PickedImage? = null,
-    val cachedUser : User? = null
+    val currentUser : User? = null
 )
 
     private val _uiState = MutableStateFlow(WizardUiState())
@@ -45,8 +45,8 @@ data class WizardUiState(
 
     init {
         runBlocking {
-            val user = localDataSource.getCachedUser()
-            _uiState.value = _uiState.value.copy(cachedUser = user)
+            val user = sessionManager.getCachedUser()
+            _uiState.value = _uiState.value.copy(currentUser = user)
         }
     }
 
@@ -68,19 +68,27 @@ data class WizardUiState(
     fun sendDataToServer() {
 
         viewModelScope.launch(Dispatchers.IO) {
+            appRepository.setLoading(true)
             try {
                 val logoKey = uiState.value.pickedImage
                     ?.let { uploadNewAppLogo(it, "app_icons") }
                     ?: ""
 
-                appRepository.createApp(
+                val createdApp=appRepository.createApp(
                     uiState.value.appName,
                     uiState.value.toggledList,
                     uiState.value.selectedColor,
                     logoKey
                 )
+
+                createdApp.let{
+                    appRepository.setLoading(false)
+                    showToast("Server: App ${it.name} created successfully!")
+                }
             } catch (e: Exception) {
+                println(e)
                 showToast(e.message.orEmpty())
+                appRepository.setLoading(false)
             }
         }
     }
@@ -88,7 +96,7 @@ data class WizardUiState(
 
     @OptIn(ExperimentalTime::class)
     suspend fun uploadNewAppLogo(image: PickedImage, folder: String): String {
-        if(uiState.value.cachedUser == null){
+        if(uiState.value.currentUser == null){
             throw Exception("User not logged in")
         }
         val timeStamp = Clock.System.now().toEpochMilliseconds()
@@ -96,7 +104,7 @@ data class WizardUiState(
 
 
         val presign = cloudFilesRepository.presignUserFileUpload(
-            owner_id = uiState.value.cachedUser!!._id,
+            owner_id = uiState.value.currentUser!!._id,
             folder = folder,
             file_basename = fileBasename,
             mime = image.mimeType ?: "image/jpeg",
@@ -111,7 +119,7 @@ data class WizardUiState(
         )
 
         return cloudFilesRepository.commitUserFile(
-            owner_id = uiState.value.cachedUser!!._id, //can't be null here
+            owner_id = uiState.value.currentUser!!._id, //can't be null here
             key = presign.key,
             tags = listOf("app-image"),
             checksum = null

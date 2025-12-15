@@ -7,21 +7,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.demokmpinterfacetestingapp.ViewModel.LogInOutViewModel
+import com.example.demokmpinterfacetestingapp.ViewModel.AuthViewModel
 
-import com.example.demokmpinterfacetestingapp.DI.ServiceLocator.logInOutViewModel
+import com.example.demokmpinterfacetestingapp.DI.ServiceLocator.authViewModel
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 @Preview
 
-fun ConnectedTempScreen(viewModel: LogInOutViewModel =logInOutViewModel, navRouter: Router? = null) {
+fun ConnectedTempScreen(viewModel: AuthViewModel =authViewModel, navRouter: Router? = null) {
     val navRouter = navRouter ?: Router()
     //val viewModel = viewModel ?: remember{ LogInOutViewModel(authRepository, userRepository) }
 

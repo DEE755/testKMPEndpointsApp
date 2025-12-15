@@ -10,7 +10,6 @@ import androidx.compose.ui.Alignment
 import com.example.demokmpinterfacetestingapp.DI.ServiceLocator.wizardViewModel
 import com.example.demokmpinterfacetestingapp.ViewModel.AppWizardViewModel
 
-val viewModel: AppWizardViewModel = wizardViewModel
 
 @Composable
 fun CheckboxWithLabel(label: String, onCheckedChange: () -> Unit = {}) {

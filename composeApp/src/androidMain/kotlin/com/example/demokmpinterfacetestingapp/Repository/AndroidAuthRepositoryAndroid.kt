@@ -31,7 +31,7 @@ class AndroidAuthRepositoryAndroid(val client: HttpClient, val userPrefs: UserPr
 
 
 
-    override suspend fun getCurrentUser(): User? {
+    override suspend fun getCurrentUserFromCloud(): User? {
         val response: HttpResponse = client.get("$authBaseUrl/get_user_from_token") {
             headers.append("Content-Type", ContentType.Application.Json.toString())
             // token is added automatically from the AuthInterceptor
@@ -43,6 +43,7 @@ class AndroidAuthRepositoryAndroid(val client: HttpClient, val userPrefs: UserPr
 
         val parsed = Json { ignoreUnknownKeys = true }
             .decodeFromString(CurrentUserResponse.serializer(), response.bodyAsText())
+        parsed.user?.let{saveUserInPrefs(it)}
         return parsed.user
     }
 
@@ -83,6 +84,7 @@ class AndroidAuthRepositoryAndroid(val client: HttpClient, val userPrefs: UserPr
         )
         saveAccessToken(token)
         saveUserInPrefs(googleUser)
+        saveGoogleUserInPrefs(googleUser)
 
         return googleUser
     }
@@ -130,10 +132,12 @@ class AndroidAuthRepositoryAndroid(val client: HttpClient, val userPrefs: UserPr
             if (!response.status.isSuccess()) {
                 throw Exception("Failed to sign in: ${response.status}")
             }
+
             parsedSignInResponse = Json.Default.decodeFromString(response.bodyAsText())
             //parsedUser = Json.decodeFromString<User?>(response.bodyAsText())
             parsedUser = parsedSignInResponse?.user
             Log.d("NetworkRepositoryImpl", "Success: $parsedUser")
+            parsedUser?.let{saveUserInPrefs(it)}
             return parsedUser
 
     }
@@ -178,6 +182,11 @@ class AndroidAuthRepositoryAndroid(val client: HttpClient, val userPrefs: UserPr
 
     }
 
+    suspend fun saveGoogleUserInPrefs(user: User)
+    {
+        userPrefs.saveFullGoogleUserInCache(user)
+
+    }
 
 
 

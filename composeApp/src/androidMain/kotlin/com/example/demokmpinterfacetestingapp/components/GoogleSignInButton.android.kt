@@ -16,7 +16,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import kotlinx.coroutines.launch
 import java.util.UUID
-import com.example.demokmpinterfacetestingapp.DI.ServiceLocator.logInOutViewModel
+import com.example.demokmpinterfacetestingapp.DI.ServiceLocator.authViewModel
 import kotlinx.coroutines.runBlocking
 
 
@@ -42,14 +42,14 @@ actual fun GoogleSignInButton(
                 val account = task.getResult(ApiException::class.java)
                 val idToken = account?.idToken
                 if (idToken.isNullOrBlank()) {
-                    logInOutViewModel.showErrorMessage("Google ID token is null or blank")
+                    authViewModel.showErrorMessage("Google ID token is null or blank")
                     return@launch
                 }
 
                 val nonce = UUID.randomUUID().toString()
 
                 runBlocking {
-                    logInOutViewModel.googleSignIn(idToken, nonce)
+                    authViewModel.googleSignIn(idToken, nonce)
                     onSuccess.invoke()
 
                 }

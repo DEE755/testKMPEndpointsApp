@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlin.io.println
 
-class LogInOutViewModel(
+class AuthViewModel (
     val authRepository : AuthRepository,
     val userRepository: UserCloudDataSource,
     val cloudFilesRepository: CloudFilesRepository? = null,
@@ -46,6 +46,11 @@ class LogInOutViewModel(
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState: StateFlow<LoginUiState> = _uiState
 
+    init {
+        tryAndGetUserFromToken()
+        //fetchCachedUser()
+
+    }
 
     fun onEmailChange(newEmail: String) {
         _uiState.value = _uiState.value.copy(email = newEmail)
@@ -93,9 +98,9 @@ class LogInOutViewModel(
                 )
                 if (receivedUser != null) {
                     _uiState.value = _uiState.value.copy(currentUser = receivedUser)
+
                 }
                 _uiState.value = _uiState.value.copy(isLoading = false)
-                sessionManager.setConnected(true)
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(isLoading = false)
                 sessionManager.setConnected(false)
@@ -111,6 +116,18 @@ class LogInOutViewModel(
 
     fun setUser(user: User?) {
         _uiState.value = _uiState.value.copy(currentUser = user)
+    }
+
+    fun fetchCachedUser(){
+        viewModelScope.launch {setUser(sessionManager.getCachedUser())}
+    }
+
+    fun setCachedUser(user: User?){
+        viewModelScope.launch {
+            if(user != null){
+                sessionManager.saveFullUserInCache(user)
+            }
+        }
     }
 
     suspend fun emailSignUp() {
@@ -302,17 +319,27 @@ class LogInOutViewModel(
 
     fun tryAndGetUserFromToken() {
         if (!sessionManager.getBearerSetStatus()) return
+
         viewModelScope.launch {
+            setLoading(true)
             try {
-                val fetchedUser: User? = authRepository.getCurrentUser()
+                val fetchedUser: User? = authRepository.getCurrentUserFromCloud()
                 fetchedUser?.let {
                     setUser(it)
                     sessionManager.setConnected(true)
+                    showToast("Welcome back, ${it.username}!")
                 }
             } catch (e: Exception) {
                 println("failed to get user from token: ${e.message}")
             }
+            finally {
+                setLoading(false)
+            }
         }
+    }
+
+    fun setLoading(isLoading: Boolean) {
+        _uiState.value = _uiState.value.copy(isLoading = isLoading)
     }
 
     suspend fun logout() {

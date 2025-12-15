@@ -1,6 +1,6 @@
 package com.example.demokmpinterfacetestingapp.Screens
 
-import com.example.demokmpinterfacetestingapp.ViewModel.LogInOutViewModel
+import com.example.demokmpinterfacetestingapp.ViewModel.AuthViewModel
 import com.example.demokmpinterfacetestingapp.Navigation.Router
 import com.example.demokmpinterfacetestingapp.Navigation.Screen
 import androidx.compose.material3.Text
@@ -10,10 +10,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 
-import com.example.demokmpinterfacetestingapp.DI.ServiceLocator.logInOutViewModel
+import com.example.demokmpinterfacetestingapp.DI.ServiceLocator.authViewModel
 
 @Composable
-fun UserCreateScreen(viewModel: LogInOutViewModel=logInOutViewModel, navRouter: Router?) {
+fun UserCreateScreen(viewModel: AuthViewModel=authViewModel, navRouter: Router?) {
     //val viewModel = viewModel ?: remember{LogInOutViewModel(authRepository, userRepository)}
     val navRouter = navRouter ?: remember { Router(Screen.LoginScreen) }
     val uiState by viewModel.uiState.collectAsState()

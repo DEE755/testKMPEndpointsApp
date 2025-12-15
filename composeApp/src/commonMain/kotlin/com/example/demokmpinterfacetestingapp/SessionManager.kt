@@ -1,13 +1,16 @@
 package com.example.demokmpinterfacetestingapp
 
 import com.example.demokmpinterfacetestingapp.DI.AuthTokenProvider
+import com.example.demokmpinterfacetestingapp.DI.UserPrefsDataSource
+import com.example.demokmpinterfacetestingapp.Model.models.User
 import com.example.demokmpinterfacetestingapp.Repository.AuthRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 class SessionManager(
     private val tokenProvider: AuthTokenProvider,
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val userPrefsDataSource: UserPrefsDataSource
 ) {
 
     data class ConnectionStatus(
@@ -24,7 +27,7 @@ class SessionManager(
         }
 
         try {
-            val user = authRepository.getCurrentUser()
+            val user = authRepository.getCurrentUserFromCloud()
             _connectionStatus.value = ConnectionStatus(
                 isConnected = user != null,
                 error = null
@@ -48,6 +51,18 @@ class SessionManager(
 
     suspend fun logout() {
         tokenProvider.clearAccessToken()
+        userPrefsDataSource.clearAllPrefs()
         _connectionStatus.value = ConnectionStatus(isConnected = false)
     }
+
+    suspend fun getCachedUser() : User? =
+        userPrefsDataSource.getCachedUser()
+
+    suspend fun saveFullUserInCache(user: User)=
+        userPrefsDataSource.saveFullUserInCache(user)
+
+
+    val userFlow : kotlinx.coroutines.flow.Flow<com.example.demokmpinterfacetestingapp.Model.models.User?> = kotlinx.coroutines.flow.flowOf(null)
+
+
 }
