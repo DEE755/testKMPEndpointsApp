@@ -1,10 +1,12 @@
 package com.example.demokmpinterfacetestingapp.Model.models
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 @Serializable
 data class User(val _id: String,
                 val username: String,
                 val email: String,
                 val token: String?=null, //later remove completely
+                @SerialName("avatar_url")
                 val avatarURL: String?=null,
                 val googleUserInfo: GoogleExtraUserInfo? =null,
                 val appleUserInfo: AppleUserInfo? = null)

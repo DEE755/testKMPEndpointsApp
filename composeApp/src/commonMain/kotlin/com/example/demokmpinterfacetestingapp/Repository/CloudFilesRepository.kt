@@ -8,16 +8,16 @@ import com.example.demokmpinterfacetestingapp.Model.models.responses.R2FilePresi
 interface CloudFilesRepository {
     suspend fun presignAppFileUpload(
         folder: String,
-        file_basename: String?,
+        fileBasename: String?,
         mime: String,
         ext: String,
         visibility: Visibility = Visibility.public
     ): R2FilePresignResponse
 
     suspend fun presignUserFileUpload(
-        owner_id: String,
+        ownerId: String,
         folder: String,
-        file_basename: String?,
+        fileBasename: String?,
         mime: String,
         ext: String,
         visibility: Visibility = Visibility.private

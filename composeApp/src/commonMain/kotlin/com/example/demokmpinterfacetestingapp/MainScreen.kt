@@ -20,7 +20,7 @@ fun MainScreen() {
         GeneralDrawerScreen(
             {
                 Column {
-                Spacer(Modifier.height(30.dp))
+                Spacer(Modifier.height(90.dp))
                 AppRoot() }
             }
         )

@@ -96,7 +96,7 @@ object ServiceLocator {
     }
 
     fun provideWizardViewModel(): AppWizardViewModel {
-        return AppWizardViewModel(appRepository, cloudFilesRepository, sessionManager, localUserDataSource)
+        return AppWizardViewModel(appRepository, cloudFilesRepository, sessionManager)
     }
     fun provideNavRouter() : Router {
         return Router()

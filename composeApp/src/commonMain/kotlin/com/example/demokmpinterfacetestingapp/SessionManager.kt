@@ -15,7 +15,8 @@ class SessionManager(
 
     data class ConnectionStatus(
         val isConnected: Boolean = false,
-        val error: Exception? = null
+        val error: Exception? = null,
+        val isSessionTerminated: Boolean = false
     )
     private val _connectionStatus = MutableStateFlow(ConnectionStatus())
     val connectionStatus: StateFlow<ConnectionStatus> = _connectionStatus
@@ -45,6 +46,10 @@ class SessionManager(
         _connectionStatus.value = _connectionStatus.value.copy(isConnected = connected)
     }
 
+    fun setSessionTerminated(terminated: Boolean) {
+        _connectionStatus.value = ConnectionStatus(isSessionTerminated = terminated)
+    }
+
 
     fun getBearerSetStatus() =
         tokenProvider.hasBearerSet
@@ -53,6 +58,7 @@ class SessionManager(
         tokenProvider.clearAccessToken()
         userPrefsDataSource.clearAllPrefs()
         _connectionStatus.value = ConnectionStatus(isConnected = false)
+        setSessionTerminated(true)
     }
 
     suspend fun getCachedUser() : User? =

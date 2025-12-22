@@ -8,12 +8,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
@@ -22,6 +24,7 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
@@ -29,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key.Companion.R
 import androidx.compose.ui.layout.BeyondBoundsLayout
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
@@ -42,8 +46,8 @@ import io.kamel.image.KamelImage
 import io.kamel.image.asyncPainterResource
 import kotlinx.coroutines.launch
 import com.example.demokmpinterfacetestingapp.ui.showToast
-
-
+import io.kamel.core.utils.File
+import io.ktor.http.Url
 
 
 @Composable
@@ -62,32 +66,18 @@ fun GeneralDrawerScreen(regularScreen: @Composable () -> Unit,) {
     }
 
     @Composable
-    fun LogoOpenCloseMenuButton() {
-        uiState.currentUser?.avatarURL?.let { imageUrl ->
-            Spacer(modifier = Modifier.height(30.dp))
-            KamelImage(
-                resource = asyncPainterResource(imageUrl),
-                contentDescription = "Profile Picture",
-                modifier = Modifier.size(70.dp)
-                    .clip(CircleShape)
-                    .border(1.dp, Color.Gray, CircleShape)
-                    .clickable { scope.launch { if (drawerState.isOpen) drawerState.close() else drawerState.open() } },
-                onLoading = { progress ->
-                    CircularProgressIndicator(progress = { progress })
-                },
-                onFailure = { exception ->
-                    scope.launch { showToast(exception.message ?: "Something went wrong") }
-                    //Button(onClick = {scope.launch {drawerState.open()} }){Text("Menu")}
-                }
-            )
-        }
-        if (uiState.currentUser == null) {
-            Button(onClick = {
-                scope.launch { if (drawerState.isOpen) drawerState.close() else drawerState.open() }
-            }) {
-                Text(if (drawerState.isOpen) "Close" else "Menu")
-            }
-        }
+    fun LogoOpenCloseMenuButton()
+    {
+        val imageUrl= uiState.currentUser?.avatarURL?:"none"
+        Spacer(modifier = Modifier.height(30.dp))
+        
+        LogoButton(
+            onClick = { scope.launch { if (drawerState.isOpen) drawerState.close() else drawerState.open() } },
+            imageUrl = imageUrl
+        )
+        
+        
+
     }
 
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
@@ -96,21 +86,38 @@ fun GeneralDrawerScreen(regularScreen: @Composable () -> Unit,) {
             drawerContent = {
                 CompositionLocalProvider( LocalLayoutDirection provides LayoutDirection.Ltr){
                 ModalDrawerSheet {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Row {
-                            Text("Menu")
-                            Spacer(modifier = Modifier.width(140.dp))
-                            LogoOpenCloseMenuButton()
+                    Column(modifier = Modifier.padding(5.dp)) {
 
+                        Box(modifier = Modifier.fillMaxWidth()) {
+                            Button(
+                                    modifier = Modifier.align(Alignment.TopEnd),
+                                    onClick = {
+                                        scope.launch { if (drawerState.isOpen) drawerState.close() else drawerState.open() }
+                                    }) {
+                                    Text("|||")
+                                }
+                        }
+                        Card (
+                            modifier = Modifier.fillMaxWidth(),
+                            ) {
+
+                            Box(modifier = Modifier.fillMaxWidth().padding(16.dp), contentAlignment = Alignment.BottomCenter) {
+                            Row {
+                                Column {
+                                    Spacer(Modifier.height(25.dp))
+                                    Text(viewModel.uiState.value.currentUser?.username ?: "Guest User")
+                                }
+                                Spacer(modifier = Modifier.width(30.dp))
+
+                                LogoOpenCloseMenuButton()
+
+                            }}
                         }
                         Spacer(modifier = Modifier.height(12.dp))
-
-
 
                         if (uiState.currentUser != null) {
                             SliderConnected()
                         } else {
-
                             SignInSignUpSliderHost()
                         }
 
@@ -126,15 +133,17 @@ fun GeneralDrawerScreen(regularScreen: @Composable () -> Unit,) {
             Column(modifier = Modifier.padding(16.dp)) {
 
                 Spacer(modifier = Modifier.height(15.dp))
-
+                Row {
                     Button(
                         onClick = {
                             scope.launch { if (drawerState.isOpen) drawerState.close() else drawerState.open() }
                         }) {
                         Text("|||")
-
-                         }
-
+                    }
+                    Box(Modifier.fillMaxWidth()) {
+                        Text(text = "AppDot", modifier = Modifier.align(Alignment.Center))
+                    }
+                }
                 //LogoOpenCloseMenuButton()
                 Spacer(Modifier.height(30.dp))
 

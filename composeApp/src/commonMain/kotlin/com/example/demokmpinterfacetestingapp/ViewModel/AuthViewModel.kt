@@ -1,5 +1,6 @@
 package com.example.demokmpinterfacetestingapp.ViewModel
 
+import androidx.compose.runtime.collectAsState
 import com.example.demokmpinterfacetestingapp.Model.models.User
 import com.example.demokmpinterfacetestingapp.Model.models.requests.Visibility
 import com.example.demokmpinterfacetestingapp.Repository.AuthRepository
@@ -8,9 +9,11 @@ import com.example.demokmpinterfacetestingapp.Repository.UserCloudDataSource
 import com.example.demokmpinterfacetestingapp.SessionManager
 import com.example.demokmpinterfacetestingapp.ui.showToast
 import com.example.demokmpinterfacetestingapp.util.PickedImage
+import io.ktor.utils.io.core.Closeable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -22,7 +25,7 @@ class AuthViewModel (
     val cloudFilesRepository: CloudFilesRepository? = null,
     val sessionManager: SessionManager
 
-    ) {
+    ) : Closeable {
 
     private val viewModelScope by lazy {
         CoroutineScope(SupervisorJob() + Dispatchers.Default)
@@ -47,7 +50,10 @@ class AuthViewModel (
     val uiState: StateFlow<LoginUiState> = _uiState
 
     init {
-        tryAndGetUserFromToken()
+        if (!sessionManager.connectionStatus.value.isConnected && sessionManager.getBearerSetStatus()) {
+            viewModelScope.launch { showToast("You are not connected to the device") }
+            tryAndGetUserFromToken()
+        }
         //fetchCachedUser()
 
     }
@@ -100,10 +106,12 @@ class AuthViewModel (
                     _uiState.value = _uiState.value.copy(currentUser = receivedUser)
 
                 }
-                _uiState.value = _uiState.value.copy(isLoading = false)
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(isLoading = false)
+
                 sessionManager.setConnected(false)
+            }
+            finally {
+                _uiState.value = _uiState.value.copy(isLoading = false)
             }
         }
     }
@@ -116,6 +124,7 @@ class AuthViewModel (
 
     fun setUser(user: User?) {
         _uiState.value = _uiState.value.copy(currentUser = user)
+        print("Set user in ViewModel: $user")
     }
 
     fun fetchCachedUser(){
@@ -143,11 +152,13 @@ class AuthViewModel (
                 _uiState.value = _uiState.value.copy(currentUser = createdUser)
                sessionManager.setConnected(true)
             }
-            _uiState.value = _uiState.value.copy(isLoading = false)
+
 
         } catch (e: Exception) {
-            _uiState.value = _uiState.value.copy(isLoading = false)
             sessionManager.setConnected(false)
+        }
+        finally {
+            _uiState.value = _uiState.value.copy(isLoading = false)
         }
     }
 
@@ -171,10 +182,12 @@ class AuthViewModel (
 
                     sessionManager.setConnected(true)
 
+
                 }
             } catch (e: Exception) {
                 sessionManager.setConnected(false)
                 showErrorMessage(e.message ?: "")
+
 
             } finally {
                 _uiState.value = _uiState.value.copy(isLoading = false)
@@ -195,7 +208,7 @@ class AuthViewModel (
             try {
                 cloudFilesRepository?.presignAppFileUpload(
                     folder = "apps/$appId/files/",
-                    file_basename = fileName,
+                    fileBasename = fileName,
                     mime = fileType,
                     ext = fileType.substringAfterLast("/")
                 )
@@ -208,9 +221,9 @@ class AuthViewModel (
         viewModelScope.launch {
             try {
                 cloudFilesRepository?.presignUserFileUpload(
-                    owner_id = _uiState.value.currentUser?._id ?: "",
+                    ownerId = _uiState.value.currentUser?._id ?: "",
                     folder = "users/${_uiState.value.currentUser?._id}/files/",
-                    file_basename = fileName,
+                    fileBasename = fileName,
                     mime = fileType,
                     ext = fileType.substringAfterLast("/")
                 )
@@ -235,9 +248,9 @@ class AuthViewModel (
                     throw Exception("No current user found for user file upload")
                 }
                 val presignResponse = cloudFilesRepository?.presignUserFileUpload(
-                    owner_id = _uiState.value.currentUser!!._id,
+                    ownerId = _uiState.value.currentUser!!._id,
                     folder = folder,
-                    file_basename = fileBasename,
+                    fileBasename = fileBasename,
                     mime = image.mimeType ?: "image/jpeg",
                     ext = image.name?.substringAfterLast('.') ?: "jpg",
                     visibility = Visibility.public
@@ -275,7 +288,7 @@ class AuthViewModel (
             try {
                 val presignResponse = cloudFilesRepository?.presignAppFileUpload(
                     folder = folder,
-                    file_basename = fileBasename,
+                    fileBasename = fileBasename,
                     mime = image.mimeType ?: "image/jpeg",
                     ext = image.name?.substringAfterLast('.') ?: "jpg",
                     visibility = Visibility.public
@@ -345,5 +358,11 @@ class AuthViewModel (
     suspend fun logout() {
         sessionManager.logout()
         setUser(null)
+        close()
+    }
+
+    override fun close() {
+        viewModelScope.cancel()
+        _uiState.value = LoginUiState()
     }
 }

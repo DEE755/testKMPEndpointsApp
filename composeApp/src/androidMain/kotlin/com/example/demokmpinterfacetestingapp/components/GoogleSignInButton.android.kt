@@ -5,18 +5,25 @@ import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import kotlinx.coroutines.launch
 import java.util.UUID
 import com.example.demokmpinterfacetestingapp.DI.ServiceLocator.authViewModel
+import io.kamel.image.KamelImage
+import io.kamel.image.asyncPainterResource
 import kotlinx.coroutines.runBlocking
 
 
@@ -75,10 +82,17 @@ actual fun GoogleSignInButton(
         )
     }
 
-    Button(onClick = {
-        val intent = client.signInIntent
-        launcher.launch(intent)
-    }) {
-        Text(text = "Sign in with Google")
-    }
+    KamelImage(resource = asyncPainterResource("https://developers.google.com/static/identity/assets/images/sign-in-with-google.svg"),
+            contentDescription = "Google Sign-In Button",
+            modifier =
+        Modifier.height(50.dp).width(50.dp)
+            .clickable(
+                onClick = {
+                    val intent = client.signInIntent
+                    launcher.launch(intent)
+                },
+
+            )
+    )
+
 }

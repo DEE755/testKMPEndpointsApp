@@ -7,10 +7,10 @@ import com.example.demokmpinterfacetestingapp.Model.models.User
 import com.example.demokmpinterfacetestingapp.Model.models.requests.Visibility
 import com.example.demokmpinterfacetestingapp.Repository.AppRepository
 import com.example.demokmpinterfacetestingapp.Repository.CloudFilesRepository
-import com.example.demokmpinterfacetestingapp.Repository.UserLocalDataSource
 import com.example.demokmpinterfacetestingapp.SessionManager
 import com.example.demokmpinterfacetestingapp.ui.showToast
 import com.example.demokmpinterfacetestingapp.util.PickedImage
+import io.ktor.utils.io.core.Closeable
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,23 +19,22 @@ import kotlin.time.ExperimentalTime
 
 
 
-class AppWizardViewModel(
+class AppWizardViewModel (
     private val appRepository: AppRepository,
     private val cloudFilesRepository: CloudFilesRepository,
-    private val sessionManager: SessionManager,
-    private val localDataSource: UserLocalDataSource // TODO (fustionate sessionManager and localDataSource)
-) {
+    private val sessionManager: SessionManager
+) : Closeable {
 
 //NOTE: USING GOOGLE CONVENTION FOR NAMING VARIABLES IN DATA CLASS AND OBSERVE IN READONLY WAY
 
 //We do that to be able to observe all the screen states from a single data class
-    //TODO(Later pass GlobalUserRepo and userPrefs will be included inside it )
 data class WizardUiState(
     val nextEnabled: Boolean = false,
     val appName: String = "",
     var selectedColor: Color= Color.White,
     val toggledList: List<Module> = emptyList(),
-    val pickedImage: PickedImage? = null,
+    val pickedImageLogo: PickedImage? = null,
+    val pickedImageBanner: PickedImage? = null,
     val currentUser : User? = null
 )
 
@@ -70,8 +69,11 @@ data class WizardUiState(
         viewModelScope.launch(Dispatchers.IO) {
             appRepository.setLoading(true)
             try {
-                val logoKey = uiState.value.pickedImage
-                    ?.let { uploadNewAppLogo(it, "app_icons") }
+                val logoKey = uiState.value.pickedImageLogo
+                    ?.let {
+                        println("updating NEW image: $it")
+                        uploadNewAppLogo(it, "app_icons")
+                    }
                     ?: ""
 
                 val createdApp=appRepository.createApp(
@@ -80,6 +82,13 @@ data class WizardUiState(
                     uiState.value.selectedColor,
                     logoKey
                 )
+
+                // Refresh from server so we get the canonical app_icon_url
+                try {
+                    appRepository.fetchUserApps()
+                } catch (refreshErr: Exception) {
+                    println("Warning: failed to refresh apps after creation: $refreshErr")
+                }
 
                 createdApp.let{
                     appRepository.setLoading(false)
@@ -93,7 +102,6 @@ data class WizardUiState(
         }
     }
 
-
     @OptIn(ExperimentalTime::class)
     suspend fun uploadNewAppLogo(image: PickedImage, folder: String): String {
         if(uiState.value.currentUser == null){
@@ -104,9 +112,44 @@ data class WizardUiState(
 
 
         val presign = cloudFilesRepository.presignUserFileUpload(
-            owner_id = uiState.value.currentUser!!._id,
+            ownerId = uiState.value.currentUser!!._id,
             folder = folder,
-            file_basename = fileBasename,
+            fileBasename = fileBasename,
+            mime = image.mimeType ?: "image/jpeg",
+            ext = image.name?.substringAfterLast('.') ?: "jpg",
+            visibility = Visibility.public
+        )
+
+        println("uploading to R2: $presign")
+        cloudFilesRepository.uploadToR2(
+            presignedUrl = presign.url,
+            fileBytes = image.bytes,
+            contentType = image.mimeType ?: "image/jpeg"
+        )
+
+        return cloudFilesRepository.commitUserFile(
+            owner_id = uiState.value.currentUser!!._id, //can't be null here
+            key = presign.key,
+            tags = listOf("app-image"),
+            checksum = null
+        ).key
+    }
+
+
+    @OptIn(ExperimentalTime::class)
+    suspend fun uploadNewAppBanner(image: PickedImage, folder: String): String {
+        TODO()
+        if(uiState.value.currentUser == null){
+            throw Exception("User not logged in")
+        }
+        val timeStamp = Clock.System.now().toEpochMilliseconds()
+        val fileBasename = "${uiState.value.appName}_app_icon_$timeStamp"
+
+
+        val presign = cloudFilesRepository.presignUserFileUpload(
+            ownerId = uiState.value.currentUser!!._id,
+            folder = folder,
+            fileBasename = fileBasename,
             mime = image.mimeType ?: "image/jpeg",
             ext = image.name?.substringAfterLast('.') ?: "jpg",
             visibility = Visibility.public
@@ -151,9 +194,19 @@ data class WizardUiState(
 
 
     fun setPickedImage(pickedImage: PickedImage) {
-        _uiState.value = _uiState.value.copy(pickedImage = pickedImage)
+        _uiState.value = _uiState.value.copy(pickedImageLogo = pickedImage)
         enableNext(true)
     }
 
+
+    fun setPickedBannerImage(pickedImage: PickedImage) {
+        _uiState.value = _uiState.value.copy(pickedImageBanner = pickedImage)
+        enableNext(true)
+    }
+
+    override fun close() {
+        viewModelScope.cancel()
+        _uiState.value = WizardUiState()
+    }
 
 }
