@@ -4,6 +4,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -11,6 +13,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -45,6 +50,8 @@ import io.kamel.image.asyncPainterResource
             }
         }
     }
+
+
 
 
 @Composable
@@ -82,3 +89,56 @@ fun LogoButton(onClick: () -> Unit, pickedArray: PickedImage, shape : Shape = Ci
         )
     }
 }
+
+
+
+@Composable
+fun VectorialPlusButton(shape: Shape = CircleShape, onClick: () -> Unit) {
+    //importing SVG file is problematic in multiplatform compose, so using a simple plus sign for now
+    Surface(
+        color = Color(0xFF2196F3),
+        modifier = Modifier
+            .size(70.dp)
+            .clip(shape)
+            .border(1.dp, Color(0xFF1976D2), shape)
+            .clickable { onClick() }
+    ) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Text(
+                "+",
+                fontSize = MaterialTheme.typography.headlineLarge.fontSize,
+                color = Color.White
+            )
+        }
+    }
+}
+
+
+@Composable
+fun VectorialBannerPlusButton(shape: Shape = CircleShape, onClick: () -> Unit) {
+    //importing SVG file is problematic in multiplatform compose, so using a simple plus sign for now
+    Surface(
+        color = Color(0xFF2196F3),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(150.dp)
+            .clip(shape)
+            .border(1.dp, Color(0xFF1976D2), shape)
+            .clickable { onClick() }
+    ) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Text(
+                "+",
+                fontSize = MaterialTheme.typography.headlineLarge.fontSize,
+                color = Color.White
+            )
+        }
+    }
+}
+

@@ -1,17 +1,17 @@
 
 package com.example.demokmpinterfacetestingapp.DI
 
-import com.example.demokmpinterfacetestingapp.Repository.AuthRepository
-import com.example.demokmpinterfacetestingapp.Repository.CloudFilesRepository
-import com.example.demokmpinterfacetestingapp.Repository.UserCloudDataSource
-import com.example.demokmpinterfacetestingapp.ViewModel.AuthViewModel
-import com.example.demokmpinterfacetestingapp.Navigation.Router
-import com.example.demokmpinterfacetestingapp.Repository.AppRemoteDataSource
-import com.example.demokmpinterfacetestingapp.Repository.AppRepository
-import com.example.demokmpinterfacetestingapp.Repository.CommonAppRepository
-import com.example.demokmpinterfacetestingapp.Repository.GlobalUserRepository
-import com.example.demokmpinterfacetestingapp.Repository.UserLocalDataSource
-import com.example.demokmpinterfacetestingapp.ViewModel.AppSelectionViewModel
+import com.example.demokmpinterfacetestingapp.repository.AuthRepository
+import com.example.demokmpinterfacetestingapp.repository.CloudFilesRepository
+import com.example.demokmpinterfacetestingapp.repository.UserCloudDataSource
+import com.example.demokmpinterfacetestingapp.viewmodel.AuthViewModel
+import com.example.demokmpinterfacetestingapp.navigation.Router
+import com.example.demokmpinterfacetestingapp.repository.AppRemoteDataSource
+import com.example.demokmpinterfacetestingapp.repository.AppRepository
+import com.example.demokmpinterfacetestingapp.repository.CommonAppRepository
+import com.example.demokmpinterfacetestingapp.repository.GlobalUserRepository
+import com.example.demokmpinterfacetestingapp.repository.UserLocalDataSource
+import com.example.demokmpinterfacetestingapp.viewmodel.AppSelectionViewModel
 
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.*
@@ -25,7 +25,7 @@ import io.ktor.http.HttpHeaders.Authorization
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import com.example.demokmpinterfacetestingapp.SessionManager
-import com.example.demokmpinterfacetestingapp.ViewModel.AppWizardViewModel
+import com.example.demokmpinterfacetestingapp.viewmodel.AppWizardViewModel
 
 // 1) Fonctions "ports" à spécialiser par plateforme
 expect fun provideEngine(): HttpClientEngineFactory<*>

@@ -5,6 +5,7 @@ import androidx.compose.ui.graphics.Color
 data class ListItem(
     val id: String,
     val title: String,
-    val thumbnailUrl: String?,
+    val logoUrl: String?,
+    val bannerUrl: String?,
     val color: String =Color.LightGray.value.toString()
 )

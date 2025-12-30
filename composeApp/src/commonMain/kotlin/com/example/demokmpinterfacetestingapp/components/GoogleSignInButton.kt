@@ -1,8 +1,7 @@
 package com.example.demokmpinterfacetestingapp.components
 
 import androidx.compose.runtime.Composable
-import com.example.demokmpinterfacetestingapp.Const.GoogleSignInParams
-import com.example.demokmpinterfacetestingapp.Navigation.Screen
+import com.example.demokmpinterfacetestingapp.constants.GoogleSignInParams
 
 
 @Composable

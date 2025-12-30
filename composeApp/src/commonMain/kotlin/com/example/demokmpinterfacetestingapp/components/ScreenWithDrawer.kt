@@ -2,13 +2,12 @@ package com.example.demokmpinterfacetestingapp.components
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.anchoredDraggable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
@@ -17,14 +16,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ModalDrawerSheet
-import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
@@ -32,22 +27,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.key.Key.Companion.R
-import androidx.compose.ui.layout.BeyondBoundsLayout
-import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.example.demokmpinterfacetestingapp.DI.ServiceLocator.authViewModel
-import com.example.demokmpinterfacetestingapp.DI.ServiceLocator.navRouter
-import com.example.demokmpinterfacetestingapp.Navigation.Screen
-import com.example.demokmpinterfacetestingapp.Screens.Menus.SignInSignUpSliderHost
-import com.example.demokmpinterfacetestingapp.Screens.Menus.SliderConnected
+import com.example.demokmpinterfacetestingapp.screens.Menus.SignInSignUpSliderHost
+import com.example.demokmpinterfacetestingapp.screens.Menus.SliderConnected
 import io.kamel.image.KamelImage
 import io.kamel.image.asyncPainterResource
 import kotlinx.coroutines.launch
 import com.example.demokmpinterfacetestingapp.ui.showToast
-import io.kamel.core.utils.File
-import io.ktor.http.Url
 
 
 @Composable
@@ -80,78 +67,77 @@ fun GeneralDrawerScreen(regularScreen: @Composable () -> Unit,) {
 
     }
 
-    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-        ModalNavigationDrawer(
-            drawerState = drawerState,
+
+        CustomDrawerLayout(
             drawerContent = {
-                CompositionLocalProvider( LocalLayoutDirection provides LayoutDirection.Ltr){
-                ModalDrawerSheet {
-                    Column(modifier = Modifier.padding(5.dp)) {
+                Column(modifier = Modifier.padding(5.dp)) {
 
-                        Box(modifier = Modifier.fillMaxWidth()) {
-                            Button(
-                                    modifier = Modifier.align(Alignment.TopEnd),
-                                    onClick = {
-                                        scope.launch { if (drawerState.isOpen) drawerState.close() else drawerState.open() }
-                                    }) {
-                                    Text("|||")
-                                }
-                        }
-                        Card (
-                            modifier = Modifier.fillMaxWidth(),
-                            ) {
+                    Box(modifier = Modifier.fillMaxWidth()) {
+                        Button(
+                                modifier = Modifier.align(Alignment.TopEnd),
+                                onClick = {
+                                    scope.launch { if (drawerState.isOpen) drawerState.close() else drawerState.open() }
+                                }) {
+                                Text("|||")
+                            }
+                    }
+                    Card (
+                        modifier = Modifier.fillMaxWidth(),
+                        ) {
 
-                            Box(modifier = Modifier.fillMaxWidth().padding(16.dp), contentAlignment = Alignment.BottomCenter) {
-                            Row {
-                                Column {
-                                    Spacer(Modifier.height(25.dp))
-                                    Text(viewModel.uiState.value.currentUser?.username ?: "Guest User")
-                                }
-                                Spacer(modifier = Modifier.width(30.dp))
+                        Box(modifier = Modifier.fillMaxWidth().padding(16.dp), contentAlignment = Alignment.BottomCenter) {
+                        Row {
+                            Column {
+                                Spacer(Modifier.height(25.dp))
+                                Text(viewModel.uiState.value.currentUser?.username ?: "Guest User")
+                            }
+                            Spacer(modifier = Modifier.width(30.dp))
 
-                                LogoOpenCloseMenuButton()
+                            LogoOpenCloseMenuButton()
 
-                            }}
-                        }
-                        Spacer(modifier = Modifier.height(12.dp))
+                        }}
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
 
-                        if (uiState.currentUser != null) {
-                            SliderConnected()
-                        } else {
-                            SignInSignUpSliderHost()
-                        }
-
+                    if (uiState.currentUser != null) {
+                        SliderConnected(){ scope.launch { drawerState.close() } }
+                    } else {
+                        SignInSignUpSliderHost { scope.launch { drawerState.close() } }
 
                     }
+
+
                 }
-                    }
             },
-            gesturesEnabled = true
-        ) {
+            content = {
+                Column(modifier = Modifier.padding(16.dp)) {
 
-
-            Column(modifier = Modifier.padding(16.dp)) {
-
-                Spacer(modifier = Modifier.height(15.dp))
-                Row {
-                    Button(
-                        onClick = {
-                            scope.launch { if (drawerState.isOpen) drawerState.close() else drawerState.open() }
-                        }) {
-                        Text("|||")
-                    }
+                    Spacer(modifier = Modifier.height(15.dp))
                     Box(Modifier.fillMaxWidth()) {
                         Text(text = "AppDot", modifier = Modifier.align(Alignment.Center))
                     }
+                        Row( modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.End
+                        ) {
+                            Button(
+                                onClick = {
+                                    scope.launch { if (drawerState.isOpen) drawerState.close() else drawerState.open() }
+                                }) {
+                                Text("|||")
+                            }
+                        }
+
+
+                    //LogoOpenCloseMenuButton()
+                    Spacer(Modifier.height(30.dp))
+
                 }
-                //LogoOpenCloseMenuButton()
-                Spacer(Modifier.height(30.dp))
 
-            }
+                regularScreen()
+            },
+            drawerState = drawerState
+        )
 
-            regularScreen()
-        }
-    }
 }
 
 
@@ -199,28 +185,21 @@ fun WithDrawer(regularScreen: @Composable () -> Unit, drawerScreen: @Composable 
             }
         }}
 
-    CompositionLocalProvider( LocalLayoutDirection provides LayoutDirection.Rtl) {
+    CustomDrawerLayout(
+        drawerContent = {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Row {
+                    Text("Menu")
+                    Spacer(modifier = Modifier.width(140.dp))
+                    LogoOpenCloseMenuButton()
 
-        ModalNavigationDrawer(
-            drawerState = drawerState,
-            drawerContent = {
-                ModalDrawerSheet {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Row {
-                            Text("Menu")
-                            Spacer(modifier = Modifier.width(140.dp))
-                            LogoOpenCloseMenuButton()
-
-                        }
-                        Spacer(modifier = Modifier.height(12.dp))
-                        drawerScreen()
-
-                    }
                 }
-            },
-            gesturesEnabled = true
-        ) {
+                Spacer(modifier = Modifier.height(12.dp))
+                drawerScreen()
 
+            }
+        },
+        content = {
             Spacer(modifier = Modifier.height(30.dp))
             Column(modifier = Modifier.padding(16.dp)) {
 
@@ -231,7 +210,8 @@ fun WithDrawer(regularScreen: @Composable () -> Unit, drawerScreen: @Composable 
             }
 
             regularScreen()
-        }
-    }
+        },
+        drawerState = drawerState
+    )
     }
 

@@ -13,7 +13,9 @@ class App(
     val modules: List<Module.Module>,
     val color: String,
     @SerialName("app_icon_url")
-    var appIconURL: String?= null
+    var appIconURL: String?= null,
+    @SerialName("app_banner_url")
+    var appBannerURL: String?= null
 ){
 }
 

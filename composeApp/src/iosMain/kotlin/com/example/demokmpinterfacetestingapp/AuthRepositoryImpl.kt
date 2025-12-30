@@ -1,6 +1,6 @@
 package com.example.demokmpinterfacetestingapp
 
-import com.example.demokmpinterfacetestingapp.Repository.AuthRepository
+import com.example.demokmpinterfacetestingapp.repository.AuthRepository
 import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*

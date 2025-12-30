@@ -3,7 +3,7 @@ package com.example.demokmpinterfacetestingapp
 import com.example.demokmpinterfacetestingapp.DI.AuthTokenProvider
 import com.example.demokmpinterfacetestingapp.DI.UserPrefsDataSource
 import com.example.demokmpinterfacetestingapp.Model.models.User
-import com.example.demokmpinterfacetestingapp.Repository.AuthRepository
+import com.example.demokmpinterfacetestingapp.repository.AuthRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 

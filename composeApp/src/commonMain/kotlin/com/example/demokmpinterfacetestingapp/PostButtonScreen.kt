@@ -1,6 +1,6 @@
 package com.example.demokmpinterfacetestingapp
 
-import com.example.demokmpinterfacetestingapp.Repository.AuthRepository
+import com.example.demokmpinterfacetestingapp.repository.AuthRepository
 import androidx.compose.runtime.*
 import androidx.compose.material3.*
 import androidx.compose.foundation.layout.*
